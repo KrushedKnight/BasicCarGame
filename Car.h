@@ -19,7 +19,7 @@ class Car {
         Car(double x, double y, int w, int h);
 
 
-        void setAcceleration(Eigen::Vector2d &acceleration);
+        void applyInput(Eigen::Vector2d &acceleration);
 
         int getPositionX();
         int getPositionY();

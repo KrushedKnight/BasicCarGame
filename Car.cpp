@@ -10,7 +10,7 @@ Car::Car(double x, double y, int w, int h)
       height(h) {}
 
 
-void Car::setAcceleration(Eigen::Vector2d &acceleration) {
+void Car::applyInput(Eigen::Vector2d &inputVector) {
     this->acceleration = acceleration;
 }
 

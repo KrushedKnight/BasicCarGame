@@ -40,7 +40,7 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
     Car car{Constants::CENTER_X, Constants::CENTER_Y, Constants::CAR_WIDTH, Constants::CAR_LENGTH};
 
 
-    Eigen::Vector2d a;
+    Eigen::Vector2d inputDirection;
 
 
     for (int i =0; i < 1000; i++) {
@@ -49,28 +49,28 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
                         case SDLK_w:
-                                a = Constants::DOWN_VECTOR * 100;
-                                car.setAcceleration(a);
+                                inputDirection = Constants::DOWN_VECTOR * 100;
+                                car.applyInput(a);
                                 break;
                         case SDLK_s:
-                                a = Constants::UP_VECTOR * 100;
-                                car.setAcceleration(a);
+                                inputDirection = Constants::UP_VECTOR * 100;
+                                car.applyInput(a);
                                 break;
 
                         case SDLK_a:
-                            a = Constants::LEFT_VECTOR * 100;
-                            car.setAcceleration(a);
+                            inputDirection = Constants::LEFT_VECTOR * 100;
+                            car.applyInput(a);
                             break;
                         case SDLK_d:
-                            a = Constants::RIGHT_VECTOR * 100;
-                            car.setAcceleration(a);
+                            inputDirection = Constants::RIGHT_VECTOR * 100;
+                            car.applyInput(a);
                             break;
                     }
                     break;
 
                 case SDL_KEYUP:
                     a = Constants::ZERO_VECTOR * 100;
-                    car.setAcceleration(a);
+                    car.applyInput(a);
                     break;
 
 

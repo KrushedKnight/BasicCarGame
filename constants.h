@@ -32,6 +32,7 @@ namespace Constants {
     Eigen::Vector2d DOWN_VECTOR{0, -1};
     Eigen::Vector2d LEFT_VECTOR{-1, 0};
     Eigen::Vector2d RIGHT_VECTOR{1, 0};
+
     Eigen::Vector2d ZERO_VECTOR{0, 0};
 }
 #endif //CONSTANTS_H
