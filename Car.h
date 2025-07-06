@@ -16,6 +16,7 @@ class Car {
 
         Eigen::Vector2d velocity;
         Eigen::Vector2d acceleration;
+
         Car(double x, double y, int w, int h);
 
 

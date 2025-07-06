@@ -11,5 +11,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 add_executable(SimpleTrafficGame main.cpp
         Car.cpp
         Car.h
-        constants.h)
+        constants.h
+        RigidBody.cpp
+        RigidBody.h)
 target_link_libraries(SimpleTrafficGame ${SDL2_LIBRARIES})
