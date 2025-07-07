@@ -37,6 +37,7 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
 
     SDL_Event event;
 
+    //TODO: redo this mess
     Car car{Constants::CENTER_X, Constants::CENTER_Y, Constants::CAR_WIDTH, Constants::CAR_LENGTH};
 
 

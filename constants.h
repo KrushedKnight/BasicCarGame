@@ -5,6 +5,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+
+//TODO: where should constants be>
 namespace Constants {
     double TIME_INTERVAL = 0.016;
     int SDL_TIME_INTERVAL = 16;
@@ -25,7 +27,12 @@ namespace Constants {
     int CAR_WIDTH = std::floor(25.0 * SCALING_FACTOR);
     int CAR_LENGTH = std::floor(45.0 * SCALING_FACTOR);
 
+    double DIST_TO_WHEEL = sqrt(CAR_WIDTH * CAR_WIDTH + CAR_LENGTH * CAR_LENGTH);
+
     int CAR_POWER = 1;
+
+    double CAR_MASS = 1.0;
+    double CAR_MOMENT_OF_INERTIA = 1.0;
 
 
     Eigen::Vector2d UP_VECTOR{0, 1};

@@ -3,3 +3,40 @@
 //
 
 #include "RigidBody.h"
+
+#include <cmath>
+
+#include "constants.h"
+
+
+RigidBody::RigidBody()
+    : velocity(Eigen::Vector2d::Zero()), acceleration(Eigen::Vector2d::Zero()), forces(Eigen::Vector2d::Zero()),
+    angular_position(0), angular_velocity(0), angular_acceleration(0), angular_torque(0) {
+
+    mass = Constants::CAR_MASS;
+    moment_of_inertia = Constants::CAR_MOMENT_OF_INERTIA;
+}
+
+
+int RigidBody::getPositionX() {
+    return std::floor(pos_x);
+}
+
+int RigidBody::getPositionY() {
+    return std::floor(pos_y);
+}
+
+
+void RigidBody::incrementTime(double time_interval) {
+    acceleration = sumForces() / mass;
+
+    pos_x += pos_x + velocity.x() * time_interval + 0.5 * acceleration.x() * time_interval * time_interval;
+    pos_y += pos_y + velocity.y() * time_interval + 0.5 * acceleration.y() * time_interval * time_interval;
+    velocity = velocity + acceleration * time_interval;
+
+    angular_acceleration = sumTorques() / moment_of_inertia;
+    angular_position += angular_velocity * time_interval + 0.5 * angular_acceleration * time_interval * time_interval;
+    angular_velocity += angular_acceleration * time_interval;
+
+}
+

@@ -8,33 +8,24 @@
 #include <SDL_render.h>
 #include <eigen-3.4.0/Eigen/Dense>
 
+#include "RigidBody.h"
 
-class Car {
+
+class Car : public RigidBody {
     public:
-        double pos_x;
-        double pos_y;
-
-        Eigen::Vector2d velocity;
-        Eigen::Vector2d acceleration;
 
         Car(double x, double y, int w, int h);
 
 
+
         void applyInput(Eigen::Vector2d &acceleration);
 
-        int getPositionX();
-        int getPositionY();
 
         const int getWidth();
         const int getHeight();
 
-        void setPositionX(double x);
-        void setPositionY(double y);
-
-        void incrementTime(double time_step);
 
         void drawCar(SDL_Renderer* renderer);
-
         void eraseCar(SDL_Renderer *renderer);
 
     private:

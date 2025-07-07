@@ -4,30 +4,14 @@
 
 #include "Car.h"
 
-Car::Car(double x, double y, int w, int h)
-    : pos_x(x), pos_y(y), velocity(Eigen::Vector2d::Zero()), acceleration(Eigen::Vector2d::Zero()),
-      width(w),
-      height(h) {}
+Car::Car(double x, double y, int w, int h) : width(w), height(h){
+    pos_x = x;
+    pos_y = y;
+}
 
 
 void Car::applyInput(Eigen::Vector2d &inputVector) {
     this->acceleration = acceleration;
-}
-
-int Car::getPositionX() {
-    return std::floor(this->pos_x);
-}
-
-int Car::getPositionY() {
-    return std::floor(this->pos_y);
-}
-
-void Car::setPositionX(double x) {
-    this->pos_x = x;
-}
-
-void Car::setPositionY(double y) {
-    this->pos_y = y;
 }
 
 
@@ -37,13 +21,6 @@ const int Car::getWidth() {
 
 const int Car::getHeight() {
     return this->height;
-}
-
-void Car::incrementTime(double time_step) {
-    this->setPositionX(this->pos_x + this->velocity.x() * time_step + 0.5 * this->acceleration.x() * time_step * time_step);
-    this->setPositionY(this->pos_y + this->velocity.y() * time_step + 0.5 * this->acceleration.y() * time_step * time_step);
-
-    this->velocity = this->velocity + this->acceleration * time_step;
 }
 
 void Car::drawCar(SDL_Renderer* renderer) {
