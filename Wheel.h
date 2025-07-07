@@ -5,13 +5,17 @@
 #ifndef WHEEL_H
 #define WHEEL_H
 
+#include "constants.h"
+#include "RigidBody.h"
 
 
-class Wheel {
+class Wheel : public RigidBody {
 public:
     double WHEEL_ANGLE;
-    double WHEEL_RADIUS;
 
+    double WHEEL_RADIUS{Constants::WHEEL_RADIUS};
+
+    Wheel();
 };
 
 

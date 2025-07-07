@@ -4,9 +4,17 @@
 
 #include "Car.h"
 
-Car::Car(double x, double y, int w, int h) : width(w), height(h){
+
+
+Car::Car(double x, double y, int w, int h) : width(w), height(h), steering_angle(0){
     pos_x = x;
     pos_y = y;
+
+    frontLeft = new Wheel();
+    frontRight = new Wheel();
+    backLeft = new Wheel();
+    backRight = new Wheel();
+
 }
 
 

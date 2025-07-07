@@ -9,14 +9,21 @@
 #include <eigen-3.4.0/Eigen/Dense>
 
 #include "RigidBody.h"
+#include "Wheel.h"
 
 
 class Car : public RigidBody {
     public:
-
         Car(double x, double y, int w, int h);
 
+        double steering_angle{0};
 
+        Wheel* frontLeft;
+        Wheel* frontRight;
+        Wheel* backLeft;
+        Wheel* backRight;
+
+        std::vector<Wheel*> wheels{frontLeft, frontRight, backLeft, backRight};
 
         void applyInput(Eigen::Vector2d &acceleration);
 

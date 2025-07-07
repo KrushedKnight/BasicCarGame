@@ -3,3 +3,5 @@
 //
 
 #include "Wheel.h"
+
+Wheel::Wheel() : WHEEL_ANGLE(0) {}

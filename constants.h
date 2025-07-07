@@ -34,6 +34,8 @@ namespace Constants {
     double CAR_MASS = 1.0;
     double CAR_MOMENT_OF_INERTIA = 1.0;
 
+    double WHEEL_RADIUS = 0.5;
+
 
     Eigen::Vector2d UP_VECTOR{0, 1};
     Eigen::Vector2d DOWN_VECTOR{0, -1};
