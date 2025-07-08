@@ -12,6 +12,7 @@ public:
     double pos_x;
     double pos_y;
 
+
     Eigen::Vector2d velocity;
     Eigen::Vector2d acceleration;
     Eigen::Vector2d forces;

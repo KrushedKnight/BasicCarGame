@@ -46,11 +46,18 @@ void Car::applyBrakes() {
 }
 
 void Car::sumWheelForces() {
-    // addForce({0, 30});
     for (Wheel* wheel : wheels) {
-        //TODO: Fix this torque stuff
-        // addTorque(wheel->calculateFriction().x() * 0.6 * Constants::CAR_LENGTH);
-        addForce(wheel->calculateFriction());
+        //Replace with weight distribution
+        double angleToWheel = getAngleToWheel(wheel);
+        double frictionalForce = wheel->calculateFriction().norm();
+
+        Eigen::Vector2d wheelHeading{frictionalForce * cos(angular_position + angleToWheel), frictionalForce * sin(angular_position + angleToWheel)};
+        Eigen::Vector2d heading{cos(angular_position), sin(angular_position)};
+        Eigen::Vector2d projection = (wheelHeading.dot(heading) / heading.squaredNorm() * heading);
+
+
+        addTorque((wheelHeading - projection).norm() * Constants::DIST_TO_WHEEL);
+        addForce(projection);
     }
 }
 
@@ -66,4 +73,10 @@ void Car::drawCar(SDL_Renderer* renderer) {
 void Car::eraseCar(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+}
+
+double Car::getAngleToWheel(Wheel* wheel) {
+    // return(angular_position - wheel->wheelAngle);
+    //TODO: clean up later
+    return steering_angle * Constants::STEERING_RACK;
 }

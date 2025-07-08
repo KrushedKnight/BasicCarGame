@@ -36,6 +36,8 @@ class Car : public RigidBody {
         void drawCar(SDL_Renderer* renderer);
         void eraseCar(SDL_Renderer *renderer);
 
+        double getAngleToWheel(Wheel *wheel);
+
         void applySteering(double amount);
         void applyEngineTorque();
 
