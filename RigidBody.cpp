@@ -26,17 +26,37 @@ int RigidBody::getPositionY() {
     return std::floor(pos_y);
 }
 
+void RigidBody::addForce(Eigen::Vector2d force) {
+    forces += force;
+}
+
+void RigidBody::addTorque(Eigen::Vector2d torque) {
+    angular_torque += torque;
+}
+
+
+void RigidBody::clearForces() {
+    forces = Eigen::Vector2d::Zero();
+}
+
+void RigidBody::clearTorques() {
+    angular_torque = 0;
+}
 
 void RigidBody::incrementTime(double time_interval) {
-    acceleration = sumForces() / mass;
+    acceleration = forces/ mass;
 
     pos_x += pos_x + velocity.x() * time_interval + 0.5 * acceleration.x() * time_interval * time_interval;
     pos_y += pos_y + velocity.y() * time_interval + 0.5 * acceleration.y() * time_interval * time_interval;
     velocity = velocity + acceleration * time_interval;
 
-    angular_acceleration = sumTorques() / moment_of_inertia;
+    angular_acceleration = angular_torque / moment_of_inertia;
     angular_position += angular_velocity * time_interval + 0.5 * angular_acceleration * time_interval * time_interval;
     angular_velocity += angular_acceleration * time_interval;
 
+    clearForces();
+    clearTorques();
 }
+
+
 

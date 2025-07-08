@@ -33,13 +33,11 @@ public:
 
 
     void addForce(Eigen::Vector2d force);
-    void addTorque(Eigen::Vector2d torque);
+    void addTorque(double torque);
 
     void clearForces();
     void clearTorques();
 
-    Eigen::Vector2d sumForces();
-    double sumTorques();
 
     void incrementTime(double time_interval);
 };

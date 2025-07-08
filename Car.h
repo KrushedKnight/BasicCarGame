@@ -18,6 +18,8 @@ class Car : public RigidBody {
 
         double steering_angle{0};
 
+        double engine_power{Constants::CAR_POWER};
+
         Wheel* frontLeft;
         Wheel* frontRight;
         Wheel* backLeft;
@@ -34,6 +36,11 @@ class Car : public RigidBody {
 
         void drawCar(SDL_Renderer* renderer);
         void eraseCar(SDL_Renderer *renderer);
+
+        void applySteering();
+        void applyEngineTorque();
+
+        void sumWheelForces();
 
     private:
         const double width;

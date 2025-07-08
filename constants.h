@@ -4,6 +4,8 @@
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
+#include <cmath>
+#include <eigen-3.4.0/Eigen/src/Core/Matrix.h>
 
 
 //TODO: where should constants be>
@@ -29,12 +31,15 @@ namespace Constants {
 
     double DIST_TO_WHEEL = sqrt(CAR_WIDTH * CAR_WIDTH + CAR_LENGTH * CAR_LENGTH);
 
-    int CAR_POWER = 1;
+    double CAR_POWER = 1.0;
 
     double CAR_MASS = 1.0;
     double CAR_MOMENT_OF_INERTIA = 1.0;
 
     double WHEEL_RADIUS = 0.5;
+    double WHEEL_FRICTION;
+
+    double STEERING_RACK = 0.5;
 
 
     Eigen::Vector2d UP_VECTOR{0, 1};

@@ -15,6 +15,8 @@ public:
 
     double WHEEL_RADIUS{Constants::WHEEL_RADIUS};
 
+    double frictionCoefficient{Constants::WHEEL_FRICTION};
+
     Wheel();
 };
 
