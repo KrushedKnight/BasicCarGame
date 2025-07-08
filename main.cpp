@@ -42,7 +42,7 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
 
 
 
-    for (int i =0; i < 1000; i++) {
+    for (int i =0; i < 10000; i++) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYDOWN:
@@ -78,7 +78,9 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
         car.eraseCar(renderer);
         car.drawCar(renderer);
         SDL_Delay(Constants::SDL_TIME_INTERVAL);
+        car.sumWheelForces();
         car.incrementTime(Constants::TIME_INTERVAL);
+
     }
 
 

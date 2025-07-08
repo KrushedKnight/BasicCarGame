@@ -16,6 +16,7 @@ Car::Car(double x, double y, int w, int h) : width(w), height(h), steering_angle
     backLeft = new Wheel();
     backRight = new Wheel();
 
+    wheels.assign({frontLeft, frontLeft, backLeft, backRight});
 }
 
 
@@ -41,14 +42,16 @@ void Car::applyEngineTorque() {
 
 void Car::applyBrakes() {
     backRight->addTorque(backRight->wheelRadius * braking_power);
+    backLeft->addTorque(backLeft->wheelRadius * braking_power);
 }
+
 void Car::sumWheelForces() {
-    // for (Wheel* wheel : wheels) {
-    //     //TODO: Fix this torque stuff
-    //     addTorque(wheel->calculateFriction().x() * 0.6 * Constants::CAR_LENGTH);
-    //     Eigen::Vector2d force(0, wheel->calculateFriction().y());
-    //     addForce(force);
-    // }
+    // addForce({0, 30});
+    for (Wheel* wheel : wheels) {
+        //TODO: Fix this torque stuff
+        // addTorque(wheel->calculateFriction().x() * 0.6 * Constants::CAR_LENGTH);
+        addForce(wheel->calculateFriction());
+    }
 }
 
 void Car::drawCar(SDL_Renderer* renderer) {

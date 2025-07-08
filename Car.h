@@ -26,7 +26,7 @@ class Car : public RigidBody {
         Wheel* backLeft;
         Wheel* backRight;
 
-        std::vector<Wheel*> wheels{frontLeft, frontRight, backLeft, backRight};
+        std::vector<Wheel*> wheels;
 
 
         const int getWidth();

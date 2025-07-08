@@ -37,6 +37,7 @@ namespace Constants {
     extern const double BRAKING_POWER;
 
     extern const double CAR_MASS;
+    extern const double CAR_WEIGHT;
     extern const double CAR_MOMENT_OF_INERTIA;
 
     extern const double WHEEL_RADIUS;
