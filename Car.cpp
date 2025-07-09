@@ -51,8 +51,8 @@ void Car::sumWheelForces() {
         double angleToWheel = getAngleToWheel(wheel);
         double frictionalForce = wheel->calculateFriction().norm();
 
-        Eigen::Vector2d wheelHeading{frictionalForce * cos(angular_position + angleToWheel), frictionalForce * sin(angular_position + angleToWheel)};
-        Eigen::Vector2d heading{cos(angular_position), sin(angular_position)};
+        Eigen::Vector2d wheelHeading{frictionalForce * sin(angular_position + angleToWheel), frictionalForce * cos(angular_position + angleToWheel)};
+        Eigen::Vector2d heading{sin(angular_position), cos(angular_position)};
         Eigen::Vector2d projection = (wheelHeading.dot(heading) / heading.squaredNorm() * heading);
 
 
