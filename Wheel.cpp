@@ -7,33 +7,46 @@
 Wheel::Wheel() : wheelAngle(0) {}
 
 Eigen::Vector2d Wheel::calculateFriction(double carVelocity, double enginePower) {
-    if (angular_velocity <= 0) {
+
+
+
+    // angular_velocity += Constants::TIME_INTERVAL * (enginePower - frictionForce * Constants::WHEEL_RADIUS) / moment_of_inertia;
+    //TODO: this needs to account for direction
+    double slip = Constants::WHEEL_RADIUS * angular_velocity - carVelocity;
+
+    double effective_mass = moment_of_inertia / (Constants::WHEEL_RADIUS * Constants::WHEEL_RADIUS);
+
+    double requiredFrictionForce = (slip / Constants::TIME_INTERVAL) * effective_mass;
+    double maxFrictionForce = normalForce * frictionCoefficient;
+    double frictionForce = std::clamp(requiredFrictionForce, -maxFrictionForce, maxFrictionForce);
+
+
+    if (slip == 0) {
         return Eigen::Vector2d::Zero();
     }
 
-    double frictionForce = normalForce * frictionCoefficient;
-
-    angular_velocity += Constants::TIME_INTERVAL * (enginePower - frictionForce * Constants::WHEEL_RADIUS) / moment_of_inertia;
-    double slip = Constants::WHEEL_RADIUS * angular_velocity - velocity.norm();
-
-    double frictionSign =  (slip >= 0) ? -1.0 : 1.0;
 
 
-
-    double x = sin(wheelAngle) * frictionForce * frictionSign;
-    double y = cos(wheelAngle) * frictionForce * frictionSign;
+    double x = sin(wheelAngle) * frictionForce;
+    double y = cos(wheelAngle) * frictionForce;
 
 
     Eigen::Vector2d friction{x, y};
 
-    if (angular_torque < 0) {
-        angular_torque += frictionForce * Constants::WHEEL_RADIUS;
-        angular_torque = std::min(angular_torque, 0.0);
-    }
-    else if (angular_torque > 0) {
-        angular_torque -= frictionForce * Constants::WHEEL_RADIUS;
-        angular_torque = std::max(angular_torque, 0.0);
-    }
+    double frictionTorque = frictionForce * wheelRadius;
+    addTorque(-frictionTorque);
+
+
+    //TODO: this can be removed
+
+    // if (angular_torque < 0) {
+    //     angular_torque += (enginePower - frictionForce) * Constants::WHEEL_RADIUS;
+    //     angular_torque = std::min(angular_torque, 0.0);
+    // }
+    // else if (angular_torque > 0) {
+    //     angular_torque -= (enginePower - frictionForce) * Constants::WHEEL_RADIUS;
+    //     angular_torque = std::max(angular_torque, 0.0);
+    // }
 
     return friction;
 }

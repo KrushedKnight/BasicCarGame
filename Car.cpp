@@ -38,6 +38,8 @@ void Car::applySteering(double amount) {
 void Car::applyEngineTorque() {
     backRight->addTorque(backRight->wheelRadius * engine_power);
     backLeft->addTorque(backLeft->wheelRadius * engine_power);
+    frontRight->addTorque(frontRight->wheelRadius * engine_power);
+    frontLeft->addTorque(frontLeft->wheelRadius * engine_power);
 }
 
 void Car::applyBrakes() {
