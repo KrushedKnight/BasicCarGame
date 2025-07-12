@@ -41,15 +41,21 @@ void Car::applyEngineTorque() {
 }
 
 void Car::applyBrakes() {
+    frontLeft->addTorque(frontLeft->wheelRadius * braking_power);
+    frontRight->addTorque(frontRight->wheelRadius * braking_power);
     backRight->addTorque(backRight->wheelRadius * braking_power);
     backLeft->addTorque(backLeft->wheelRadius * braking_power);
 }
 
 void Car::sumWheelForces() {
     for (Wheel* wheel : wheels) {
-        //Replace with weight distribution
+        //should this be moved?
+
         double angleToWheel = getAngleToWheel(wheel);
-        double frictionalForce = wheel->calculateFriction().norm();
+        double frictionalForce = wheel->calculateFriction(velocity.norm(), engine_power).norm();
+
+
+
 
         Eigen::Vector2d wheelHeading{frictionalForce * sin(angular_position + angleToWheel), frictionalForce * cos(angular_position + angleToWheel)};
         Eigen::Vector2d heading{sin(angular_position), cos(angular_position)};
@@ -64,7 +70,7 @@ void Car::sumWheelForces() {
 void Car::moveWheels() {
     //TODO: this code is so dumb lmao - maybe the car should exert a force on the wheels
     for (Wheel* wheel : wheels) {
-        wheel->setLinearVelocity(velocity.norm());
+        // wheel->setLinearVelocity(velocity.norm());
         wheel->incrementTime(Constants::TIME_INTERVAL);
     }
 }

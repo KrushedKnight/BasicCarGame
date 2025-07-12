@@ -7,7 +7,7 @@
 
 namespace Constants {
 const double TIME_INTERVAL = 0.016;
-const int SDL_TIME_INTERVAL = 16;
+const int SDL_TIME_INTERVAL = 8;
 
 const double SCALING_FACTOR = 1.0;
 
@@ -28,8 +28,8 @@ const int CAR_LENGTH = std::floor(45.0 * SCALING_FACTOR);
 
 const double DIST_TO_WHEEL = std::sqrt(CAR_WIDTH * CAR_WIDTH + CAR_LENGTH * CAR_LENGTH);
 
-const double CAR_POWER = 1000;
-const double BRAKING_POWER = 150;
+const double CAR_POWER = 10;
+const double BRAKING_POWER = -100;
 
 const double CAR_MASS = 1.0;
 const double CAR_WEIGHT = 10.0;
