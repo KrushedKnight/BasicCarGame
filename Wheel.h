@@ -21,7 +21,7 @@ public:
 
     Wheel();
 
-    Eigen::Vector2d calculateFriction(double carVelocity, double enginePower);
+    Eigen::Vector2d calculateFriction(Eigen::Vector2d carVelocity);
 
     double getLinearVelocity();
     void setLinearVelocity(double linearVelocity);

@@ -36,17 +36,19 @@ void Car::applySteering(double amount) {
 }
 
 void Car::applyEngineTorque() {
-    backRight->addTorque(backRight->wheelRadius * engine_power);
-    backLeft->addTorque(backLeft->wheelRadius * engine_power);
-    frontRight->addTorque(frontRight->wheelRadius * engine_power);
-    frontLeft->addTorque(frontLeft->wheelRadius * engine_power);
+    for (Wheel* wheel : wheels) {
+        if (wheel->angular_velocity * wheel->wheelRadius < Constants::CAR_TOP_SPEED) {
+            wheel->addTorque(frontLeft->wheelRadius * engine_power);
+        }
+    }
 }
 
 void Car::applyBrakes() {
-    frontLeft->addTorque(frontLeft->wheelRadius * braking_power);
-    frontRight->addTorque(frontRight->wheelRadius * braking_power);
-    backRight->addTorque(backRight->wheelRadius * braking_power);
-    backLeft->addTorque(backLeft->wheelRadius * braking_power);
+    for (Wheel* wheel : wheels) {
+        if (wheel->angular_velocity > 0) {
+            wheel->addTorque(frontLeft->wheelRadius * braking_power);
+        }
+    }
 }
 
 void Car::sumWheelForces() {
@@ -54,12 +56,11 @@ void Car::sumWheelForces() {
         //should this be moved?
 
         double angleToWheel = getAngleToWheel(wheel);
-        double frictionalForce = wheel->calculateFriction(velocity.norm(), engine_power).norm();
+        // double frictionalForce = wheel->calculateFriction(velocity.norm(), engine_power).norm();
+        // Eigen::Vector2d wheelHeading{frictionalForce * sin(angular_position + angleToWheel), frictionalForce * cos(angular_position + angleToWheel)};
 
 
-
-
-        Eigen::Vector2d wheelHeading{frictionalForce * sin(angular_position + angleToWheel), frictionalForce * cos(angular_position + angleToWheel)};
+        Eigen::Vector2d wheelHeading = wheel->calculateFriction(velocity);
         Eigen::Vector2d heading{sin(angular_position), cos(angular_position)};
         Eigen::Vector2d projection = (wheelHeading.dot(heading) / heading.squaredNorm() * heading);
 

@@ -6,13 +6,13 @@
 
 Wheel::Wheel() : wheelAngle(0) {}
 
-Eigen::Vector2d Wheel::calculateFriction(double carVelocity, double enginePower) {
+Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity) {
 
 
 
     // angular_velocity += Constants::TIME_INTERVAL * (enginePower - frictionForce * Constants::WHEEL_RADIUS) / moment_of_inertia;
     //TODO: this needs to account for direction
-    double slip = Constants::WHEEL_RADIUS * angular_velocity - carVelocity;
+    double slip = Constants::WHEEL_RADIUS * angular_velocity - carVelocity.norm();
 
     double effective_mass = moment_of_inertia / (Constants::WHEEL_RADIUS * Constants::WHEEL_RADIUS);
 
@@ -21,7 +21,7 @@ Eigen::Vector2d Wheel::calculateFriction(double carVelocity, double enginePower)
     double frictionForce = std::clamp(requiredFrictionForce, -maxFrictionForce, maxFrictionForce);
 
 
-    if (slip == 0) {
+    if (std::abs(slip) < 1e-5) {
         return Eigen::Vector2d::Zero();
     }
 
@@ -36,17 +36,6 @@ Eigen::Vector2d Wheel::calculateFriction(double carVelocity, double enginePower)
     double frictionTorque = frictionForce * wheelRadius;
     addTorque(-frictionTorque);
 
-
-    //TODO: this can be removed
-
-    // if (angular_torque < 0) {
-    //     angular_torque += (enginePower - frictionForce) * Constants::WHEEL_RADIUS;
-    //     angular_torque = std::min(angular_torque, 0.0);
-    // }
-    // else if (angular_torque > 0) {
-    //     angular_torque -= (enginePower - frictionForce) * Constants::WHEEL_RADIUS;
-    //     angular_torque = std::max(angular_torque, 0.0);
-    // }
 
     return friction;
 }

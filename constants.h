@@ -8,7 +8,6 @@
 #include <cmath>
 #include <eigen-3.4.0/Eigen/Core>
 
-
 //TODO: where should constants be>
 namespace Constants {
     extern const double TIME_INTERVAL;
@@ -46,5 +45,6 @@ namespace Constants {
     extern const double STEERING_RACK;
 
 
+    extern const double CAR_TOP_SPEED;
 }
 #endif //CONSTANTS_H
