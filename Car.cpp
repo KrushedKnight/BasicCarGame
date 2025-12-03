@@ -4,6 +4,7 @@
 
 #include "Car.h"
 #include "constants.h"
+#include <cmath>
 
 
 
@@ -45,8 +46,9 @@ void Car::applyEngineTorque() {
 
 void Car::applyBrakes() {
     for (Wheel* wheel : wheels) {
-        if (wheel->angular_velocity > 0) {
-            wheel->addTorque(frontLeft->wheelRadius * braking_power);
+        if (std::abs(wheel->angular_velocity) > 1e-5) {
+            double brakingTorque = -std::abs(braking_power * wheel->wheelRadius) * std::copysign(1.0, wheel->angular_velocity);
+            wheel->addTorque(brakingTorque);
         }
     }
 }
