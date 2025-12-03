@@ -29,14 +29,16 @@ const int CAR_LENGTH = std::floor(45.0 * SCALING_FACTOR);
 
 const double DIST_TO_WHEEL = std::sqrt(CAR_WIDTH * CAR_WIDTH + CAR_LENGTH * CAR_LENGTH);
 const double WHEEL_RADIUS = 0.5;
-const double WHEEL_FRICTION = 0.3;
+const double WHEEL_FRICTION = 0.7;
+const double WHEEL_MASS = 0.1;
+const double WHEEL_MOMENT_OF_INERTIA = 0.5 * WHEEL_MASS * WHEEL_RADIUS * WHEEL_RADIUS;
 
-const double CAR_POWER = 100;
-const double BRAKING_POWER = -150;
+const double CAR_POWER = 150;
+const double BRAKING_POWER = -30;
 
 const double CAR_MASS = 1.0;
 const double CAR_WEIGHT = 10.0;
-const double CAR_MOMENT_OF_INERTIA = 0.5 * CAR_MASS * WHEEL_RADIUS * WHEEL_RADIUS;
+const double CAR_MOMENT_OF_INERTIA = (CAR_MASS / 12.0) * (CAR_WIDTH * CAR_WIDTH + CAR_LENGTH * CAR_LENGTH);
 const double CAR_TOP_SPEED = 100;
 
 

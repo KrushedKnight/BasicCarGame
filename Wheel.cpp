@@ -4,7 +4,10 @@
 
 #include "Wheel.h"
 
-Wheel::Wheel() : wheelAngle(0) {}
+Wheel::Wheel() : wheelAngle(0) {
+    mass = Constants::WHEEL_MASS;
+    moment_of_inertia = Constants::WHEEL_MOMENT_OF_INERTIA;
+}
 
 Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity, double carAngularPosition) {
 
