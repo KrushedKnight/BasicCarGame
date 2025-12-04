@@ -50,9 +50,12 @@ class Car : public RigidBody {
 
         void applyBrakes();
 
+        void applyForceFeedback();
+
         void sumWheelForces();
 
         void moveWheels();
+
 
     private:
         const double width;

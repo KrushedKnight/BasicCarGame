@@ -44,5 +44,6 @@ const double CAR_TOP_SPEED = 100;
 
 const double STEERING_RACK = 40.0 / 540.0;
 const double MAX_STEERING_ANGLE = 540;
+const double FORCE_FEEDBACK_DECAY = 0.95;
 }
 

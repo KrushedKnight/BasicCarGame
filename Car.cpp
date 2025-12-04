@@ -17,7 +17,7 @@ Car::Car(double x, double y, int w, int h) : width(w), height(h), steering_angle
     backLeft = new Wheel();
     backRight = new Wheel();
 
-    wheels.assign({frontLeft, frontLeft, backLeft, backRight});
+    wheels.assign({frontLeft, frontRight, backLeft, backRight});
 }
 
 
@@ -31,11 +31,17 @@ const int Car::getHeight() {
 
 void Car::applySteering(double amount) {
 
-    if (steering_angle < Constants::MAX_STEERING_ANGLE)
-    {
-        steering_angle += amount;
-        steering_angle = std::min(Constants::MAX_STEERING_ANGLE, steering_angle);
-    }
+    steering_angle += amount;
+    steering_angle = std::clamp(steering_angle, -Constants::MAX_STEERING_ANGLE, Constants::MAX_STEERING_ANGLE);
+
+
+    frontLeft->wheelAngle = steering_angle * Constants::STEERING_RACK;
+    frontRight->wheelAngle = steering_angle * Constants::STEERING_RACK;
+}
+
+void Car::applyForceFeedback()
+{
+    steering_angle *= Constants::FORCE_FEEDBACK_DECAY;
 
     frontLeft->wheelAngle = steering_angle * Constants::STEERING_RACK;
     frontRight->wheelAngle = steering_angle * Constants::STEERING_RACK;
@@ -78,6 +84,7 @@ void Car::moveWheels() {
         // wheel->setLinearVelocity(velocity.norm());
         wheel->incrementTime(Constants::TIME_INTERVAL);
     }
+    applyForceFeedback();
 }
 
 void Car::drawCar(SDL_Renderer* renderer) {
