@@ -75,7 +75,7 @@ void Car::sumWheelForces() {
         double signedTorque = heading.x() * lateralForce.y() - heading.y() * lateralForce.x();
 
         addTorque(signedTorque * Constants::DIST_TO_WHEEL);
-        addForce(projection);
+        addForce(wheelHeading);
     }
 }
 
