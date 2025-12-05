@@ -59,6 +59,6 @@ const double CAR_TOP_SPEED = 50.0;                     // 50 m/s = 180 km/h
 // Steering properties
 const double STEERING_RACK = 1.0;
 const double MAX_STEERING_ANGLE = 45.0 * DEG_TO_RAD;
-const double FORCE_FEEDBACK_DECAY = 0.95;
+const double FORCE_FEEDBACK_DECAY = 1.0;
 }
 

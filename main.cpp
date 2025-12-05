@@ -44,37 +44,31 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
 
     bool running = true;
     while (running) {
-        // Process all pending events
+        // Process events (for quit only)
         while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_KEYDOWN:
-                    switch (event.key.keysym.sym) {
-                        case SDLK_w:
-                            car.applyEngineTorque();
-                            break;
-                        case SDLK_s:
-                            car.applyBrakes();
-                            break;
-                        case SDLK_a:
-                            car.applySteering(-STEERING_INCREMENT);  // Convert to radians
-                            break;
-                        case SDLK_d:
-                            car.applySteering(STEERING_INCREMENT);   // Convert to radians
-                            break;
-                        case SDLK_ESCAPE:
-                        case SDLK_q:
-                            running = false;
-                            break;
-                    }
-                    break;
-
-                case SDL_QUIT:
+            if (event.type == SDL_QUIT) {
+                running = false;
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) {
                     running = false;
-                    break;
-
-                default:
-                    break;
+                }
             }
+        }
+
+        // Poll keyboard state every frame for continuous input
+        const Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+        if (keystate[SDL_SCANCODE_W]) {
+            car.applyEngineTorque();
+        }
+        if (keystate[SDL_SCANCODE_S]) {
+            car.applyBrakes();
+        }
+        if (keystate[SDL_SCANCODE_A]) {
+            car.applySteering(-STEERING_INCREMENT);
+        }
+        if (keystate[SDL_SCANCODE_D]) {
+            car.applySteering(STEERING_INCREMENT);
         }
 
         // Render

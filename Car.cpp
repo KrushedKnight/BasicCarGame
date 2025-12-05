@@ -77,9 +77,29 @@ void Car::applyBrakes() {
 }
 
 void Car::sumWheelForces() {
-    for (Wheel* wheel : wheels) {
+    // Calculate wheel positions in world space (meters)
+    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;   // Convert pixels to meters
+    double halfLength = (Constants::CAR_LENGTH / 10.0) / 2.0;
+
+    // Wheel positions relative to car center in car's local frame
+    Eigen::Vector2d wheelPositions[4] = {
+        {-halfWidth, halfLength},   // Front-left
+        {halfWidth, halfLength},    // Front-right
+        {-halfWidth, -halfLength},  // Back-left
+        {halfWidth, -halfLength}    // Back-right
+    };
+
+    for (int i = 0; i < 4; i++) {
+        Wheel* wheel = wheels[i];
+
+        // Velocity at wheel = car center velocity + rotational velocity component
+        // v_wheel = v_center + ω × r (in 2D: v_wheel = v_center + [-ω*r_y, ω*r_x])
+        Eigen::Vector2d rotationalVel(-angular_velocity * wheelPositions[i].y(),
+                                       angular_velocity * wheelPositions[i].x());
+        Eigen::Vector2d wheelVelocity = velocity + rotationalVel;
+
         // Calculate friction force from wheel-ground interaction
-        Eigen::Vector2d wheelHeading = wheel->calculateFriction(velocity, angular_position, Constants::TIME_INTERVAL);
+        Eigen::Vector2d wheelHeading = wheel->calculateFriction(wheelVelocity, angular_position, Constants::TIME_INTERVAL);
 
         // Decompose wheel force into longitudinal (along car heading) and lateral components
         Eigen::Vector2d heading{sin(angular_position), cos(angular_position)};

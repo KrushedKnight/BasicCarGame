@@ -61,6 +61,14 @@ void RigidBody::incrementTime(double time_interval) {
     angular_position += angular_velocity * time_interval + 0.5 * angular_acceleration * time_interval * time_interval;
     angular_velocity += angular_acceleration * time_interval;
 
+    // Debug output
+    static int frame_count = 0;
+    if (frame_count++ % 30 == 0) {
+        std::cout << "Angle: " << angular_position * Constants::RAD_TO_DEG
+                  << "° | AngVel: " << angular_velocity
+                  << " | Torque: " << angular_torque << std::endl;
+    }
+
     clearForces();
     clearTorques();
 }

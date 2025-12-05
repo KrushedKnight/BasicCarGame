@@ -36,8 +36,10 @@ Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity, double car
     double lateralFriction = 0.0;
 
     if (std::abs(lateralVelocity) > 1e-5) {
-        // Lateral friction resists sideways motion (no wheel rotation involved)
-        double requiredLateralForce = -(lateralVelocity / time_interval) * effective_mass;
+        // Lateral friction uses car mass (normal force / g), not wheel rotational mass
+        // This gives much stronger sideways grip, as real tires have
+        double lateralMass = normalForce / 9.81;  // Approximate car mass supported by this wheel
+        double requiredLateralForce = -(lateralVelocity / time_interval) * lateralMass;
         lateralFriction = std::clamp(requiredLateralForce, -maxFrictionForce, maxFrictionForce);
     }
 
