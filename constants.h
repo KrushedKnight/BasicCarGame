@@ -25,7 +25,7 @@ namespace Constants {
     // Car dimensions (pixels for rendering)
     extern const int CAR_WIDTH;
     extern const int CAR_LENGTH;
-    extern const double DIST_TO_WHEEL;          // Distance from center to wheel (pixels)
+    extern const double DIST_TO_WHEEL;          // Distance from center to wheel (meters)
 
     // Wheel physical properties
     extern const double WHEEL_RADIUS;           // Wheel radius (meters)

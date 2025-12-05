@@ -98,19 +98,24 @@ void Car::sumWheelForces() {
                                        angular_velocity * wheelPositions[i].x());
         Eigen::Vector2d wheelVelocity = velocity + rotationalVel;
 
-        // Calculate friction force from wheel-ground interaction
-        Eigen::Vector2d wheelHeading = wheel->calculateFriction(wheelVelocity, angular_position, Constants::TIME_INTERVAL);
+        // Calculate friction force from wheel-ground interaction (returns force in world coordinates)
+        Eigen::Vector2d wheelForce = wheel->calculateFriction(wheelVelocity, angular_position, Constants::TIME_INTERVAL);
 
-        // Decompose wheel force into longitudinal (along car heading) and lateral components
-        Eigen::Vector2d heading{sin(angular_position), cos(angular_position)};
-        Eigen::Vector2d projection = (wheelHeading.dot(heading) / heading.squaredNorm() * heading);
-        Eigen::Vector2d lateralForce = wheelHeading - projection;
+        // Transform wheel position from local to world coordinates for torque calculation
+        // Rotation matrix: [cos(θ) -sin(θ); sin(θ) cos(θ)]
+        double cos_angle = cos(angular_position);
+        double sin_angle = sin(angular_position);
+        Eigen::Vector2d wheelPosWorld(
+            cos_angle * wheelPositions[i].x() - sin_angle * wheelPositions[i].y(),
+            sin_angle * wheelPositions[i].x() + cos_angle * wheelPositions[i].y()
+        );
 
-        // Calculate torque from lateral forces (2D cross product)
-        double signedTorque = heading.x() * lateralForce.y() - heading.y() * lateralForce.x();
+        // Calculate torque: τ = r × F (2D cross product: r_x * F_y - r_y * F_x)
+        // Now both vectors are in world coordinates
+        double torque = wheelPosWorld.x() * wheelForce.y() - wheelPosWorld.y() * wheelForce.x();
 
-        addTorque(signedTorque * Constants::DIST_TO_WHEEL);
-        addForce(wheelHeading);
+        addTorque(torque);
+        addForce(wheelForce);
     }
 }
 
