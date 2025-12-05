@@ -130,7 +130,63 @@ void Car::drawCar(SDL_Renderer* renderer) {
     double angleDegrees = angular_position * Constants::RAD_TO_DEG;
 
     SDL_RenderCopyEx(renderer, tex, NULL, &rect, angleDegrees, NULL, SDL_FLIP_NONE);
+
+    // Draw debug vectors
+    drawDebugVectors(renderer);
+
     SDL_RenderPresent(renderer);
+}
+
+void Car::drawDebugVectors(SDL_Renderer* renderer) {
+    if (!showDebugVectors) return;
+
+    // Car center position in pixels
+    int centerX = getPositionX() + getWidth() / 2;
+    int centerY = getPositionY() + getHeight() / 2;
+
+    // Scale factors to make vectors visible (pixels per m/s)
+    const double velocityScale = 5.0;
+    const double accelScale = 20.0;
+
+    // Draw velocity vector (GREEN)
+    if (velocity.norm() > 0.01) {
+        int velEndX = centerX + static_cast<int>(velocity.x() * velocityScale);
+        int velEndY = centerY - static_cast<int>(velocity.y() * velocityScale); // Y inverted
+
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Green
+        SDL_RenderDrawLine(renderer, centerX, centerY, velEndX, velEndY);
+
+        // Draw arrowhead for velocity
+        double angle = std::atan2(-velocity.y(), velocity.x());
+        int arrowSize = 8;
+        int arrow1X = velEndX - arrowSize * std::cos(angle - 0.5);
+        int arrow1Y = velEndY - arrowSize * std::sin(angle - 0.5);
+        int arrow2X = velEndX - arrowSize * std::cos(angle + 0.5);
+        int arrow2Y = velEndY - arrowSize * std::sin(angle + 0.5);
+
+        SDL_RenderDrawLine(renderer, velEndX, velEndY, arrow1X, arrow1Y);
+        SDL_RenderDrawLine(renderer, velEndX, velEndY, arrow2X, arrow2Y);
+    }
+
+    // Draw acceleration vector (RED)
+    if (acceleration.norm() > 0.01) {
+        int accelEndX = centerX + static_cast<int>(acceleration.x() * accelScale);
+        int accelEndY = centerY - static_cast<int>(acceleration.y() * accelScale); // Y inverted
+
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red
+        SDL_RenderDrawLine(renderer, centerX, centerY, accelEndX, accelEndY);
+
+        // Draw arrowhead for acceleration
+        double angle = std::atan2(-acceleration.y(), acceleration.x());
+        int arrowSize = 8;
+        int arrow1X = accelEndX - arrowSize * std::cos(angle - 0.5);
+        int arrow1Y = accelEndY - arrowSize * std::sin(angle - 0.5);
+        int arrow2X = accelEndX - arrowSize * std::cos(angle + 0.5);
+        int arrow2Y = accelEndY - arrowSize * std::sin(angle + 0.5);
+
+        SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow1X, arrow1Y);
+        SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow2X, arrow2Y);
+    }
 }
 
 // Cached texture creation - only creates once

@@ -22,6 +22,8 @@ class Car : public RigidBody {
         double engine_power{Constants::CAR_POWER};
         double braking_power{Constants::BRAKING_POWER};
 
+        bool showDebugVectors{true};  // Toggle for debug vector display
+
         Wheel* frontLeft;
         Wheel* frontRight;
         Wheel* backLeft;
@@ -33,6 +35,7 @@ class Car : public RigidBody {
         const int getHeight();
 
         void drawCar(SDL_Renderer* renderer);
+        void drawDebugVectors(SDL_Renderer* renderer);
         void eraseCar(SDL_Renderer *renderer);
 
         double getAngleToWheel(Wheel *wheel);

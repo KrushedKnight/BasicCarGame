@@ -51,6 +51,8 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
             } else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_q) {
                     running = false;
+                } else if (event.key.keysym.sym == SDLK_v) {
+                    car.showDebugVectors = !car.showDebugVectors;
                 }
             }
         }
