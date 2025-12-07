@@ -1,7 +1,3 @@
-//
-// Created by beast-machine-2 on 7/6/25.
-//
-
 #include "Wheel.h"
 
 Wheel::Wheel() : wheelAngle(0) {
@@ -9,42 +5,37 @@ Wheel::Wheel() : wheelAngle(0) {
     moment_of_inertia = Constants::WHEEL_MOMENT_OF_INERTIA;
 }
 
-Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity, double carAngularPosition, double time_interval) {
-    // Wheel direction vectors in world space (angles in radians)
-    // wheelAngle is relative to car's forward direction
-    Eigen::Vector2d wheelDirection{sin(carAngularPosition + wheelAngle), cos(carAngularPosition + wheelAngle)};
-    Eigen::Vector2d lateralDirection{cos(carAngularPosition + wheelAngle), -sin(carAngularPosition + wheelAngle)};
+Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d wheelVelocityLocal, double time_interval) {
+    Eigen::Vector2d wheelForward{sin(wheelAngle), cos(wheelAngle)};
+    Eigen::Vector2d wheelRight{cos(wheelAngle), -sin(wheelAngle)};
 
-    // LONGITUDINAL FRICTION (rolling direction)
-    double carVelocityInWheelDir = carVelocity.dot(wheelDirection);
+    double velocityInWheelDir = wheelVelocityLocal.dot(wheelForward);
     double wheelLinearVelocity = wheelRadius * angular_velocity;
-    double longitudinalSlip = wheelLinearVelocity - carVelocityInWheelDir;
+    double longitudinalSlip = wheelLinearVelocity - velocityInWheelDir;
 
-    double effective_mass = moment_of_inertia / (wheelRadius * wheelRadius);
+    double wheelMass = normalForce / 9.81;
     double maxFrictionForce = normalForce * frictionCoefficient;
 
     double longitudinalFriction = 0.0;
     if (std::abs(longitudinalSlip) > 1e-5) {
-        double requiredForce = (longitudinalSlip / time_interval) * effective_mass;
+        const double LONGITUDINAL_FRICTION_RESPONSE = 0.2;
+        double requiredForce = (longitudinalSlip / time_interval) * wheelMass * LONGITUDINAL_FRICTION_RESPONSE;
         longitudinalFriction = std::clamp(requiredForce, -maxFrictionForce, maxFrictionForce);
 
-        double frictionTorque = longitudinalFriction * wheelRadius;
+        double wheelEffectiveMass = moment_of_inertia / (wheelRadius * wheelRadius);
+        double frictionTorque = longitudinalFriction * wheelRadius * (wheelEffectiveMass / wheelMass);
         addTorque(-frictionTorque);
     }
 
-    // LATERAL FRICTION (sideways/perpendicular direction)
-    double lateralVelocity = carVelocity.dot(lateralDirection);
+    double lateralVelocity = wheelVelocityLocal.dot(wheelRight);
     double lateralFriction = 0.0;
 
     if (std::abs(lateralVelocity) > 1e-5) {
-        // Lateral friction uses car mass (normal force / g), not wheel rotational mass
-        // This gives much stronger sideways grip, as real tires have
-        double lateralMass = normalForce / 9.81;  // Approximate car mass supported by this wheel
-        double requiredLateralForce = -(lateralVelocity / time_interval) * lateralMass;
+        const double LATERAL_FRICTION_RESPONSE = 0.15;
+        double requiredLateralForce = -(lateralVelocity / time_interval) * wheelMass * LATERAL_FRICTION_RESPONSE;
         lateralFriction = std::clamp(requiredLateralForce, -maxFrictionForce, maxFrictionForce);
     }
 
-    // Combined friction force (Pythagorean limit to stay within friction circle)
     double combinedMagnitude = std::sqrt(longitudinalFriction * longitudinalFriction +
                                          lateralFriction * lateralFriction);
 
@@ -54,10 +45,8 @@ Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity, double car
         lateralFriction *= scale;
     }
 
-    return wheelDirection * longitudinalFriction + lateralDirection * lateralFriction;
+    return wheelForward * longitudinalFriction + wheelRight * lateralFriction;
 }
-
-
 
 double Wheel::getLinearVelocity() {
     return angular_velocity * wheelRadius;

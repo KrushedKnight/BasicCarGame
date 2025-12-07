@@ -1,7 +1,3 @@
-//
-// Created by beast-machine-2 on 7/2/25.
-//
-
 #ifndef CAR_H
 #define CAR_H
 #include <SDL_rect.h>
@@ -11,18 +7,17 @@
 #include "RigidBody.h"
 #include "Wheel.h"
 
-
 class Car : public RigidBody {
     public:
         Car(double x, double y, int w, int h);
-        ~Car();  // Destructor to clean up wheels
+        ~Car();
 
-        double steering_angle{0};  // Current steering angle (radians)
+        double steering_angle{0};
 
         double engine_power{Constants::CAR_POWER};
         double braking_power{Constants::BRAKING_POWER};
 
-        bool showDebugVectors{true};  // Toggle for debug vector display
+        bool showDebugVectors{true};
 
         Wheel* frontLeft;
         Wheel* frontRight;
@@ -40,7 +35,7 @@ class Car : public RigidBody {
 
         double getAngleToWheel(Wheel *wheel);
 
-        void applySteering(double amount);  // amount in radians
+        void applySteering(double amount);
         void applyEngineTorque();
         void applyBrakes();
         void applyForceFeedback();
@@ -51,11 +46,9 @@ class Car : public RigidBody {
     private:
         const double width;
         const double height;
-        SDL_Texture* carTexture{nullptr};  // Cached texture to prevent memory leak
+        SDL_Texture* carTexture{nullptr};
 
         SDL_Texture* getRectangleTexture(SDL_Renderer *renderer);
 };
 
-
-
-#endif //CAR_H
+#endif

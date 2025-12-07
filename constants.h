@@ -1,7 +1,3 @@
-//
-// Created by beast-machine-2 on 7/6/25.
-//
-
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
@@ -9,50 +5,40 @@
 #include <Eigen/Core>
 
 namespace Constants {
-    // Time constants
-    extern const double TIME_INTERVAL;          // Physics timestep (seconds)
-    extern const int SDL_TIME_INTERVAL;         // Render delay (milliseconds)
+    extern const double TIME_INTERVAL;
+    extern const int SDL_TIME_INTERVAL;
 
-    // Display constants
-    extern const double SCALING_FACTOR;         // Visual scaling factor
-    extern const int SDL_WINDOW_X;              // Window position X (pixels)
-    extern const int SDL_WINDOW_Y;              // Window position Y (pixels)
-    extern const int SDL_WINDOW_WIDTH;          // Window width (pixels)
-    extern const int SDL_WINDOW_LENGTH;         // Window height (pixels)
-    extern const double CENTER_X;               // Window center X (pixels)
-    extern const double CENTER_Y;               // Window center Y (pixels)
+    extern const double SCALING_FACTOR;
+    extern const int SDL_WINDOW_X;
+    extern const int SDL_WINDOW_Y;
+    extern const int SDL_WINDOW_WIDTH;
+    extern const int SDL_WINDOW_LENGTH;
+    extern const double CENTER_X;
+    extern const double CENTER_Y;
 
-    // Car dimensions (pixels for rendering)
     extern const int CAR_WIDTH;
     extern const int CAR_LENGTH;
-    extern const double DIST_TO_WHEEL;          // Distance from center to wheel (meters)
 
-    // Wheel physical properties
-    extern const double WHEEL_RADIUS;           // Wheel radius (meters)
-    extern const double WHEEL_FRICTION;         // Tire-road friction coefficient (dimensionless)
-    extern const double WHEEL_MASS;             // Wheel mass (kg)
-    extern const double WHEEL_MOMENT_OF_INERTIA; // Wheel rotational inertia (kg⋅m²)
+    extern const double WHEEL_RADIUS;
+    extern const double WHEEL_FRICTION;
+    extern const double WHEEL_MASS;
+    extern const double WHEEL_MOMENT_OF_INERTIA;
 
-    // Engine and braking
-    extern const double CAR_POWER;              // Engine force (N)
-    extern const double BRAKING_POWER;          // Braking force (N)
+    extern const double CAR_POWER;
+    extern const double BRAKING_POWER;
 
-    // Car physical properties
-    extern const double CAR_MASS;               // Car body mass (kg)
-    extern const double CAR_WEIGHT;             // Car weight force (N)
-    extern const double CAR_MOMENT_OF_INERTIA;  // Car rotational inertia (kg⋅m²)
-    extern const double CAR_TOP_SPEED;          // Maximum speed (m/s)
+    extern const double CAR_MASS;
+    extern const double CAR_WEIGHT;
+    extern const double CAR_MOMENT_OF_INERTIA;
+    extern const double CAR_TOP_SPEED;
 
-    // Steering properties
-    extern const double STEERING_RACK;          // Steering ratio (dimensionless)
-    extern const double MAX_STEERING_ANGLE;     // Maximum wheel angle (radians)
-    extern const double FORCE_FEEDBACK_DECAY;   // Steering return rate (dimensionless)
+    extern const double STEERING_RACK;
+    extern const double MAX_STEERING_ANGLE;
+    extern const double FORCE_FEEDBACK_DECAY;
 
-    // Math constants
-    extern const double DEG_TO_RAD;             // Degree to radian conversion
-    extern const double RAD_TO_DEG;             // Radian to degree conversion
+    extern const double DEG_TO_RAD;
+    extern const double RAD_TO_DEG;
 
-    // Unit conversion
-    extern const double PIXELS_PER_METER;       // Pixels per meter (for physics/rendering conversion)
+    extern const double PIXELS_PER_METER;
 }
-#endif //CONSTANTS_H
+#endif

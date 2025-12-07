@@ -1,14 +1,9 @@
-//
-// Created by beast-machine-2 on 7/6/25.
-//
-
 #include "RigidBody.h"
 
 #include <cmath>
 #include <iostream>
 
 #include "constants.h"
-
 
 RigidBody::RigidBody()
     : velocity(Eigen::Vector2d::Zero()), acceleration(Eigen::Vector2d::Zero()), forces(Eigen::Vector2d::Zero()),
@@ -17,7 +12,6 @@ RigidBody::RigidBody()
     mass = Constants::CAR_MASS;
     moment_of_inertia = Constants::CAR_MOMENT_OF_INERTIA;
 }
-
 
 int RigidBody::getPositionX() {
     return std::floor(pos_x);
@@ -35,7 +29,6 @@ void RigidBody::addTorque(double torque) {
     angular_torque += torque;
 }
 
-
 void RigidBody::clearForces() {
     forces.setZero();
 }
@@ -47,8 +40,6 @@ void RigidBody::clearTorques() {
 void RigidBody::incrementTime(double time_interval) {
     acceleration = forces / mass;
 
-    // Physics calculates displacement in meters, convert to pixels for rendering
-    // Y-axis inverted for SDL screen coordinates (positive Y is down on screen)
     double dx_meters = velocity.x() * time_interval + 0.5 * acceleration.x() * time_interval * time_interval;
     double dy_meters = velocity.y() * time_interval + 0.5 * acceleration.y() * time_interval * time_interval;
 
@@ -61,13 +52,10 @@ void RigidBody::incrementTime(double time_interval) {
     angular_position += angular_velocity * time_interval + 0.5 * angular_acceleration * time_interval * time_interval;
     angular_velocity += angular_acceleration * time_interval;
 
-    // Normalize angular position to [-π, π] to prevent numerical issues
-    // This keeps the angle in a consistent range for trigonometric calculations
     if (std::isfinite(angular_position)) {
         angular_position = std::remainder(angular_position, 2.0 * M_PI);
     }
 
-    // Debug output
     static int frame_count = 0;
     if (frame_count++ % 30 == 0) {
         std::cout << "Angle: " << angular_position * Constants::RAD_TO_DEG
@@ -78,8 +66,3 @@ void RigidBody::incrementTime(double time_interval) {
     clearForces();
     clearTorques();
 }
-
-
-
-
-

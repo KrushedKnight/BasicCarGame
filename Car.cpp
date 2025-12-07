@@ -1,12 +1,7 @@
-//
-// Created by beast-machine-2 on 7/2/25.
-//
-
 #include "Car.h"
 #include "constants.h"
 #include <cmath>
-
-
+#include <iostream>
 
 Car::Car(double x, double y, int w, int h) : width(w), height(h), steering_angle(0) {
     pos_x = x;
@@ -31,7 +26,6 @@ Car::~Car() {
     }
 }
 
-
 const int Car::getWidth() {
     return width;
 }
@@ -41,10 +35,8 @@ const int Car::getHeight() {
 }
 
 void Car::applySteering(double amount) {
-
     steering_angle += amount;
     steering_angle = std::clamp(steering_angle, -Constants::MAX_STEERING_ANGLE, Constants::MAX_STEERING_ANGLE);
-
 
     frontLeft->wheelAngle = steering_angle * Constants::STEERING_RACK;
     frontRight->wheelAngle = steering_angle * Constants::STEERING_RACK;
@@ -59,10 +51,10 @@ void Car::applyForceFeedback()
 }
 
 void Car::applyEngineTorque() {
-    for (Wheel* wheel : wheels) {
-        // Only apply torque if wheel hasn't reached top speed
+    Wheel* rearWheels[] = {backLeft, backRight};
+    for (Wheel* wheel : rearWheels) {
         if (wheel->angular_velocity * wheel->wheelRadius < Constants::CAR_TOP_SPEED) {
-            wheel->addTorque(wheel->wheelRadius * engine_power);  // Fixed: use wheel, not frontLeft
+            wheel->addTorque(wheel->wheelRadius * engine_power);
         }
     }
 }
@@ -77,54 +69,65 @@ void Car::applyBrakes() {
 }
 
 void Car::sumWheelForces() {
-    // Calculate wheel positions in world space (meters)
-    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;   // Convert pixels to meters
+    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;
     double halfLength = (Constants::CAR_LENGTH / 10.0) / 2.0;
 
-    // Wheel positions relative to car center in car's local frame
     Eigen::Vector2d wheelPositions[4] = {
-        {-halfWidth, halfLength},   // Front-left
-        {halfWidth, halfLength},    // Front-right
-        {-halfWidth, -halfLength},  // Back-left
-        {halfWidth, -halfLength}    // Back-right
+        {-halfWidth, halfLength},
+        {halfWidth, halfLength},
+        {-halfWidth, -halfLength},
+        {halfWidth, -halfLength}
     };
 
-    // Pre-calculate rotation transformation for efficiency
     double cos_angle = cos(angular_position);
     double sin_angle = sin(angular_position);
 
+    Eigen::Vector2d velocityLocal(
+        velocity.x() * cos_angle - velocity.y() * sin_angle,
+        velocity.x() * sin_angle + velocity.y() * cos_angle
+    );
+
+    Eigen::Vector2d totalForceLocal = Eigen::Vector2d::Zero();
+    double totalTorque = 0.0;
+
     for (int i = 0; i < 4; i++) {
         Wheel* wheel = wheels[i];
+        Eigen::Vector2d wheelPos = wheelPositions[i];
 
-        // Transform wheel position from local to world coordinates
-        Eigen::Vector2d wheelPosWorld(
-            cos_angle * wheelPositions[i].x() - sin_angle * wheelPositions[i].y(),
-            sin_angle * wheelPositions[i].x() + cos_angle * wheelPositions[i].y()
-        );
+        Eigen::Vector2d rotationalVelLocal(-angular_velocity * wheelPos.y(),
+                                            angular_velocity * wheelPos.x());
 
-        // Calculate rotational velocity in world coordinates: v_rot = ω × r_world
-        // In 2D: v_rot = [-ω*r_y, ω*r_x]
-        Eigen::Vector2d rotationalVel(-angular_velocity * wheelPosWorld.y(),
-                                       angular_velocity * wheelPosWorld.x());
+        Eigen::Vector2d wheelVelocityLocal = velocityLocal + rotationalVelLocal;
 
-        // Total wheel velocity in world coordinates
-        Eigen::Vector2d wheelVelocity = velocity + rotationalVel;
+        Eigen::Vector2d wheelForceLocal = wheel->calculateFriction(wheelVelocityLocal, Constants::TIME_INTERVAL);
 
-        // Calculate friction force from wheel-ground interaction (returns force in world coordinates)
-        Eigen::Vector2d wheelForce = wheel->calculateFriction(wheelVelocity, angular_position, Constants::TIME_INTERVAL);
+        double torque = wheelPos.x() * wheelForceLocal.y() - wheelPos.y() * wheelForceLocal.x();
 
-        // Calculate torque: τ = r × F (2D cross product: r_x * F_y - r_y * F_x)
-        // Both vectors are in world coordinates
-        double torque = wheelPosWorld.x() * wheelForce.y() - wheelPosWorld.y() * wheelForce.x();
+        totalForceLocal += wheelForceLocal;
+        totalTorque += torque;
+    }
 
-        addTorque(torque);
-        addForce(wheelForce);
+    Eigen::Vector2d totalForceWorld(
+        totalForceLocal.x() * cos_angle + totalForceLocal.y() * sin_angle,
+        -totalForceLocal.x() * sin_angle + totalForceLocal.y() * cos_angle
+    );
+
+    addForce(totalForceWorld);
+    addTorque(totalTorque);
+
+    static int debugCounter = 0;
+    if (std::abs(angular_velocity) > 0.1 && debugCounter++ % 15 == 0) {
+        std::cout << "\n=== DEBUG (Local Coords) ===\n";
+        std::cout << "Car Angle: " << angular_position * Constants::RAD_TO_DEG << "°\n";
+        std::cout << "Velocity Local: [" << velocityLocal.x() << ", " << velocityLocal.y() << "]\n";
+        std::cout << "Force Local: [" << totalForceLocal.x() << ", " << totalForceLocal.y() << "]\n";
+        std::cout << "Net Torque: " << totalTorque << "\n";
+        std::cout << "AngVel: " << angular_velocity << " | Speed: " << velocity.norm() << " m/s\n";
     }
 }
 
 void Car::moveWheels() {
     for (Wheel* wheel : wheels) {
-        // wheel->setLinearVelocity(velocity.norm());
         wheel->incrementTime(Constants::TIME_INTERVAL);
     }
     applyForceFeedback();
@@ -134,12 +137,10 @@ void Car::drawCar(SDL_Renderer* renderer) {
     SDL_Texture* tex = getRectangleTexture(renderer);
     SDL_Rect rect{getPositionX(), getPositionY(), getWidth(), getHeight()};
 
-    // Convert radians to degrees for SDL rendering
     double angleDegrees = angular_position * Constants::RAD_TO_DEG;
 
     SDL_RenderCopyEx(renderer, tex, NULL, &rect, angleDegrees, NULL, SDL_FLIP_NONE);
 
-    // Draw debug vectors
     drawDebugVectors(renderer);
 
     SDL_RenderPresent(renderer);
@@ -148,23 +149,19 @@ void Car::drawCar(SDL_Renderer* renderer) {
 void Car::drawDebugVectors(SDL_Renderer* renderer) {
     if (!showDebugVectors) return;
 
-    // Car center position in pixels
     int centerX = getPositionX() + getWidth() / 2;
     int centerY = getPositionY() + getHeight() / 2;
 
-    // Scale factors to make vectors visible (pixels per m/s)
     const double velocityScale = 5.0;
     const double accelScale = 20.0;
 
-    // Draw velocity vector (GREEN)
     if (velocity.norm() > 0.01) {
         int velEndX = centerX + static_cast<int>(velocity.x() * velocityScale);
-        int velEndY = centerY - static_cast<int>(velocity.y() * velocityScale); // Y inverted
+        int velEndY = centerY - static_cast<int>(velocity.y() * velocityScale);
 
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Green
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderDrawLine(renderer, centerX, centerY, velEndX, velEndY);
 
-        // Draw arrowhead for velocity
         double angle = std::atan2(-velocity.y(), velocity.x());
         int arrowSize = 8;
         int arrow1X = velEndX - arrowSize * std::cos(angle - 0.5);
@@ -176,15 +173,13 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
         SDL_RenderDrawLine(renderer, velEndX, velEndY, arrow2X, arrow2Y);
     }
 
-    // Draw acceleration vector (RED)
     if (acceleration.norm() > 0.01) {
         int accelEndX = centerX + static_cast<int>(acceleration.x() * accelScale);
-        int accelEndY = centerY - static_cast<int>(acceleration.y() * accelScale); // Y inverted
+        int accelEndY = centerY - static_cast<int>(acceleration.y() * accelScale);
 
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderDrawLine(renderer, centerX, centerY, accelEndX, accelEndY);
 
-        // Draw arrowhead for acceleration
         double angle = std::atan2(-acceleration.y(), acceleration.x());
         int arrowSize = 8;
         int arrow1X = accelEndX - arrowSize * std::cos(angle - 0.5);
@@ -197,14 +192,13 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
     }
 }
 
-// Cached texture creation - only creates once
 SDL_Texture* Car::getRectangleTexture(SDL_Renderer* renderer) {
     if (carTexture == nullptr) {
         carTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
                                        SDL_TEXTUREACCESS_TARGET, width, height);
         SDL_SetTextureBlendMode(carTexture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(renderer, carTexture);
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red car
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderClear(renderer);
         SDL_SetRenderTarget(renderer, NULL);
     }
@@ -217,7 +211,5 @@ void Car::eraseCar(SDL_Renderer* renderer) {
 }
 
 double Car::getAngleToWheel(Wheel* wheel) {
-    // return(angular_position - wheel->wheelAngle);
-    //TODO: clean up later
     return steering_angle * Constants::STEERING_RACK;
 }

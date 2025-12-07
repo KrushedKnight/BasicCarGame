@@ -1,13 +1,8 @@
-//
-// Created by beast-machine-2 on 7/6/25.
-//
-
 #ifndef WHEEL_H
 #define WHEEL_H
 
 #include "constants.h"
 #include "RigidBody.h"
-
 
 class Wheel : public RigidBody {
 public:
@@ -21,7 +16,7 @@ public:
 
     Wheel();
 
-    Eigen::Vector2d calculateFriction(Eigen::Vector2d carVelocity, double carAngularPosition, double time_interval);
+    Eigen::Vector2d calculateFriction(Eigen::Vector2d wheelVelocityLocal, double time_interval);
 
     double getLinearVelocity();
     void setLinearVelocity(double linearVelocity);
@@ -29,6 +24,4 @@ public:
     void incrementTime(double time_interval);
 };
 
-
-
-#endif //WHEEL_H
+#endif

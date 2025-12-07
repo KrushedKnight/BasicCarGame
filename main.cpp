@@ -39,12 +39,10 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
 
     Car car{Constants::CENTER_X, Constants::CENTER_Y, Constants::CAR_WIDTH, Constants::CAR_LENGTH};
 
-    // Steering input rate in radians per frame (about 8 degrees)
     const double STEERING_INCREMENT = 8.0 * Constants::DEG_TO_RAD;
 
     bool running = true;
     while (running) {
-        // Process events (for quit only)
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -57,7 +55,6 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
             }
         }
 
-        // Poll keyboard state every frame for continuous input
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
         if (keystate[SDL_SCANCODE_W]) {
@@ -73,20 +70,15 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
             car.applySteering(STEERING_INCREMENT);
         }
 
-        // Render
         car.eraseCar(renderer);
         car.drawCar(renderer);
 
-        // Delay to match physics timestep
         SDL_Delay(Constants::SDL_TIME_INTERVAL);
 
-        // Physics update
         car.sumWheelForces();
         car.incrementTime(Constants::TIME_INTERVAL);
         car.moveWheels();
     }
-
-
 
     SDL_DestroyWindow(win);
     SDL_Quit();
