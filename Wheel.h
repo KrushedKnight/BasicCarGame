@@ -14,7 +14,10 @@ public:
 
     double normalForce{Constants::CAR_WEIGHT / 4.0};
 
-    double gripLevel{0.0};  // 0.0 = no force, 1.0 = maximum grip (sliding)
+    double gripLevel{0.0};
+
+    Eigen::Vector2d lastForce{0.0, 0.0};
+    Eigen::Vector2d lastVelocity{0.0, 0.0};
 
     Wheel();
 

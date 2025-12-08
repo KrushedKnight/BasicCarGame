@@ -105,6 +105,19 @@ void Car::sumWheelForces() {
 
         double torque = wheelPos.x() * wheelForceLocal.y() - wheelPos.y() * wheelForceLocal.x();
 
+        Eigen::Vector2d wheelVelocityWorld(
+            wheelVelocityLocal.x() * cos_angle + wheelVelocityLocal.y() * sin_angle,
+            -wheelVelocityLocal.x() * sin_angle + wheelVelocityLocal.y() * cos_angle
+        );
+
+        Eigen::Vector2d wheelForceWorld(
+            wheelForceLocal.x() * cos_angle + wheelForceLocal.y() * sin_angle,
+            -wheelForceLocal.x() * sin_angle + wheelForceLocal.y() * cos_angle
+        );
+
+        wheel->lastVelocity = wheelVelocityWorld;
+        wheel->lastForce = wheelForceWorld / wheel->mass;
+
         totalForceLocal += wheelForceLocal;
         totalTorque += torque;
     }
@@ -180,6 +193,8 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
 
     const double velocityScale = 5.0;
     const double accelScale = 20.0;
+    const double wheelVelocityScale = 0.5;
+    const double wheelForceScale = 0.05;
 
     if (velocity.norm() > 0.01) {
         int velEndX = centerX + static_cast<int>(velocity.x() * velocityScale);
@@ -215,6 +230,58 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
 
         SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow1X, arrow1Y);
         SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow2X, arrow2Y);
+    }
+
+    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;
+    double halfLength = (Constants::CAR_LENGTH / 10.0) / 2.0;
+
+    Eigen::Vector2d wheelPositions[4] = {
+        {-halfWidth, halfLength},
+        {halfWidth, halfLength},
+        {-halfWidth, -halfLength},
+        {halfWidth, -halfLength}
+    };
+
+    double cos_angle = cos(angular_position);
+    double sin_angle = sin(angular_position);
+
+    for (int i = 0; i < 4; i++) {
+        Wheel* wheel = wheels[i];
+        Eigen::Vector2d wheelPos = wheelPositions[i];
+
+        Eigen::Vector2d wheelPosWorld(
+            wheelPos.x() * cos_angle - wheelPos.y() * sin_angle,
+            wheelPos.x() * sin_angle + wheelPos.y() * cos_angle
+        );
+
+        int wheelX = centerX + static_cast<int>(wheelPosWorld.x() * 10.0);
+        int wheelY = centerY - static_cast<int>(wheelPosWorld.y() * 10.0);
+
+        if (wheel->lastVelocity.norm() > 0.01) {
+            int velEndX = wheelX + static_cast<int>(wheel->lastVelocity.x() * wheelVelocityScale);
+            int velEndY = wheelY - static_cast<int>(wheel->lastVelocity.y() * wheelVelocityScale);
+
+            SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+            SDL_RenderDrawLine(renderer, wheelX, wheelY, velEndX, velEndY);
+        }
+
+        if (wheel->lastForce.norm() > 0.01) {
+            int forceEndX = wheelX + static_cast<int>(wheel->lastForce.x() * wheelForceScale);
+            int forceEndY = wheelY - static_cast<int>(wheel->lastForce.y() * wheelForceScale);
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            SDL_RenderDrawLine(renderer, wheelX, wheelY, forceEndX, forceEndY);
+
+            double angle = std::atan2(-wheel->lastForce.y(), wheel->lastForce.x());
+            int arrowSize = 6;
+            int arrow1X = forceEndX - arrowSize * std::cos(angle - 0.5);
+            int arrow1Y = forceEndY - arrowSize * std::sin(angle - 0.5);
+            int arrow2X = forceEndX - arrowSize * std::cos(angle + 0.5);
+            int arrow2Y = forceEndY - arrowSize * std::sin(angle + 0.5);
+
+            SDL_RenderDrawLine(renderer, forceEndX, forceEndY, arrow1X, arrow1Y);
+            SDL_RenderDrawLine(renderer, forceEndX, forceEndY, arrow2X, arrow2Y);
+        }
     }
 }
 
