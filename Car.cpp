@@ -142,8 +142,6 @@ void Car::drawCar(SDL_Renderer* renderer) {
     SDL_RenderCopyEx(renderer, tex, NULL, &rect, angleDegrees, NULL, SDL_FLIP_NONE);
 
     drawDebugVectors(renderer);
-
-    SDL_RenderPresent(renderer);
 }
 
 void Car::drawDebugVectors(SDL_Renderer* renderer) {

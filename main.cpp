@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Car.h"
+#include "GUI.h"
 #include <Eigen/Dense>
 
 #include "constants.h"
@@ -39,6 +40,12 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
 
     Car car{Constants::CENTER_X, Constants::CENTER_Y, Constants::CAR_WIDTH, Constants::CAR_LENGTH};
 
+    // Initialize GUI
+    GUI gui;
+    if (!gui.initialize()) {
+        std::cerr << "Warning: Failed to initialize GUI" << std::endl;
+    }
+
     const double STEERING_INCREMENT = 8.0 * Constants::DEG_TO_RAD;
 
     bool running = true;
@@ -51,6 +58,8 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
                     running = false;
                 } else if (event.key.keysym.sym == SDLK_v) {
                     car.showDebugVectors = !car.showDebugVectors;
+                } else if (event.key.keysym.sym == SDLK_h) {
+                    gui.toggleHUD();
                 }
             }
         }
@@ -64,14 +73,16 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
             car.applyBrakes();
         }
         if (keystate[SDL_SCANCODE_A]) {
-            car.applySteering(-STEERING_INCREMENT);
+            car.applySteering(STEERING_INCREMENT);
         }
         if (keystate[SDL_SCANCODE_D]) {
-            car.applySteering(STEERING_INCREMENT);
+            car.applySteering(-STEERING_INCREMENT);
         }
 
         car.eraseCar(renderer);
         car.drawCar(renderer);
+        gui.drawHUD(renderer, car);
+        SDL_RenderPresent(renderer);
 
         SDL_Delay(Constants::SDL_TIME_INTERVAL);
 
