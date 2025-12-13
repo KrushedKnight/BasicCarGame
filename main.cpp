@@ -60,26 +60,40 @@ SDL_Window* win = SDL_CreateWindow("Car Game", Constants::SDL_WINDOW_X, Constant
                     car.showDebugVectors = !car.showDebugVectors;
                 } else if (event.key.keysym.sym == SDLK_h) {
                     gui.toggleHUD();
+                } else if (event.key.keysym.sym == SDLK_g) {
+                    gui.toggleGraphs();
                 }
             }
         }
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
+        // Track input states for graphing
+        double throttle = 0.0;
+        double brake = 0.0;
+        double steering = 0.0;
+
         if (keystate[SDL_SCANCODE_W]) {
             car.applyEngineTorque();
+            throttle = 1.0;
         }
         if (keystate[SDL_SCANCODE_S]) {
             car.applyBrakes();
+            brake = 1.0;
         }
         if (keystate[SDL_SCANCODE_A]) {
             car.applySteering(STEERING_INCREMENT);
+            steering = 1.0;
         }
         if (keystate[SDL_SCANCODE_D]) {
             car.applySteering(-STEERING_INCREMENT);
+            steering = -1.0;
         }
 
         car.sumWheelForces();
+
+        // Update graphs with current car state and inputs
+        gui.updateGraphs(car, throttle, brake, steering);
 
         car.eraseCar(renderer);
         car.drawCar(renderer);
