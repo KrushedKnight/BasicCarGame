@@ -85,10 +85,20 @@ void Car::applyEngineTorque() {
             double slipRatio = wheel->calculateSlipRatio(wheelVelocityLocal);
             double error = Constants::TIRE_SLIP_SETPOINT - slipRatio;
             double changeInSlip = slipRatio - wheel->previousSlipError;
-            double adjustedTorque = Constants::CAR_POWER * wheel->wheelRadius + Constants::TIRE_TCS_kP * error - Constants::TIRE_TCS_kD * changeInSlip;
+            double baseTorque = Constants::CAR_POWER * wheel->wheelRadius;
+            double adjustedTorque = baseTorque + Constants::TIRE_TCS_kP * error - Constants::TIRE_TCS_kD * changeInSlip;
+
+            double reduction = baseTorque - adjustedTorque;
+            if (reduction > 0) {
+                wheel->tcsInterference = (reduction / baseTorque) * 100.0;
+            } else {
+                wheel->tcsInterference = 0.0;
+            }
 
             wheel->addTorque(adjustedTorque);
             wheel->previousSlipError = slipRatio;
+        } else {
+            wheel->tcsInterference = 0.0;
         }
     }
 }

@@ -22,6 +22,7 @@ public:
     Eigen::Vector2d position{0.0, 0.0};
 
     double previousSlipError{0.0};
+    double tcsInterference{0.0};
 
     Wheel();
 
