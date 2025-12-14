@@ -34,8 +34,8 @@ const double TIRE_TRANSITION_SLIP_ANGLE = 15.0 * DEG_TO_RAD;
 const double TIRE_SLIDE_RATIO = 0.75;
 const double TIRE_LOW_SPEED_THRESHOLD = 0.5;
 const double TIRE_SLIP_SETPOINT = 0.1;
-const double TIRE_TCS_kP = 0.2;
-const double TIRE_TCS_kD = 0.1;
+const double TIRE_TCS_kP = 2.0;
+const double TIRE_TCS_kD = 0.5;
 
 const double CAR_POWER = 4000.0;
 const double BRAKING_POWER = 4000.0;
