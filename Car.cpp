@@ -3,16 +3,24 @@
 #include <cmath>
 #include <iostream>
 
-#include "cmake-build-debug/_deps/googletest-src/googlemock/include/gmock/gmock-spec-builders.h"
-
 Car::Car(double x, double y, int w, int h) : width(w), height(h) {
     pos_x = x;
     pos_y = y;
 
+    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;
+    double halfLength = (Constants::CAR_LENGTH / 10.0) / 2.0;
+
     frontLeft = new Wheel();
+    frontLeft->position = Eigen::Vector2d(-halfWidth, halfLength);
+
     frontRight = new Wheel();
+    frontRight->position = Eigen::Vector2d(halfWidth, halfLength);
+
     backLeft = new Wheel();
+    backLeft->position = Eigen::Vector2d(-halfWidth, -halfLength);
+
     backRight = new Wheel();
+    backRight->position = Eigen::Vector2d(halfWidth, -halfLength);
 
     wheels.assign({frontLeft, frontRight, backLeft, backRight});
 }
@@ -36,6 +44,22 @@ const int Car::getHeight() {
     return height;
 }
 
+Eigen::Vector2d Car::calculateWheelVelocityLocal(Eigen::Vector2d wheelPosition) {
+    double cos_angle = cos(angular_position);
+    double sin_angle = sin(angular_position);
+    Eigen::Vector2d velocityLocal(
+        velocity.x() * cos_angle - velocity.y() * sin_angle,
+        velocity.x() * sin_angle + velocity.y() * cos_angle
+    );
+
+    Eigen::Vector2d rotationalVelLocal(
+        -angular_velocity * wheelPosition.y(),
+        angular_velocity * wheelPosition.x()
+    );
+
+    return velocityLocal + rotationalVelLocal;
+}
+
 void Car::applySteering(double amount) {
     steering_angle += amount;
     steering_angle = std::clamp(steering_angle, -Constants::MAX_STEERING_ANGLE, Constants::MAX_STEERING_ANGLE);
@@ -54,18 +78,18 @@ void Car::applyForceFeedback()
 
 void Car::applyEngineTorque() {
     Wheel* rearWheels[] = {backLeft, backRight};
+
     for (Wheel* wheel : rearWheels) {
-        if (wheel->angular_velocity * wheel->wheelRadius >= Constants::CAR_TOP_SPEED) {
-            return;
+        if (wheel->angular_velocity * wheel->wheelRadius < Constants::CAR_TOP_SPEED) {
+            Eigen::Vector2d wheelVelocityLocal = calculateWheelVelocityLocal(wheel->position);
+            double slipRatio = wheel->calculateSlipRatio(wheelVelocityLocal);
+            double error = Constants::TIRE_SLIP_SETPOINT - slipRatio;
+            double changeInSlip = slipRatio - wheel->previousSlipError;
+            double adjustedTorque = Constants::CAR_POWER * wheel->wheelRadius + Constants::TIRE_TCS_kP * error - Constants::TIRE_TCS_kD * changeInSlip;
+
+            wheel->addTorque(adjustedTorque);
+            wheel->previousSlipError = slipRatio;
         }
-
-        double slipRatio = wheel->calculateSlipRatio(wheel->velocity); //make sure this vector is correct
-        double error = Constants::TIRE_SLIP_SETPOINT - slipRatio;
-        double changeInSlip = slipRatio - previous_slip;
-        double adjustedTorque = Constants::CAR_POWER * wheel->wheelRadius + Constants::TIRE_TCS_kP * error - Constants::TIRE_TCS_kD * changeInSlip;
-
-        wheel->addTorque(adjustedTorque);
-        previous_slip = slipRatio;
     }
 }
 
@@ -81,39 +105,18 @@ void Car::applyBrakes() {
 void Car::sumWheelForces() {
     updateLoadTransfer();
 
-    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;
-    double halfLength = (Constants::CAR_LENGTH / 10.0) / 2.0;
-
-    Eigen::Vector2d wheelPositions[4] = {
-        {-halfWidth, halfLength},
-        {halfWidth, halfLength},
-        {-halfWidth, -halfLength},
-        {halfWidth, -halfLength}
-    };
-
     double cos_angle = cos(angular_position);
     double sin_angle = sin(angular_position);
-
-    Eigen::Vector2d velocityLocal(
-        velocity.x() * cos_angle - velocity.y() * sin_angle,
-        velocity.x() * sin_angle + velocity.y() * cos_angle
-    );
 
     Eigen::Vector2d totalForceLocal = Eigen::Vector2d::Zero();
     double totalTorque = 0.0;
 
-    for (int i = 0; i < 4; i++) {
-        Wheel* wheel = wheels[i];
-        Eigen::Vector2d wheelPos = wheelPositions[i];
-
-        Eigen::Vector2d rotationalVelLocal(-angular_velocity * wheelPos.y(),
-                                            angular_velocity * wheelPos.x());
-
-        Eigen::Vector2d wheelVelocityLocal = velocityLocal + rotationalVelLocal;
+    for (Wheel* wheel : wheels) {
+        Eigen::Vector2d wheelVelocityLocal = calculateWheelVelocityLocal(wheel->position);
 
         Eigen::Vector2d wheelForceLocal = wheel->calculateFriction(wheelVelocityLocal, Constants::TIME_INTERVAL);
 
-        double torque = wheelPos.x() * wheelForceLocal.y() - wheelPos.y() * wheelForceLocal.x();
+        double torque = wheel->position.x() * wheelForceLocal.y() - wheel->position.y() * wheelForceLocal.x();
 
         Eigen::Vector2d wheelVelocityWorld(
             wheelVelocityLocal.x() * cos_angle + wheelVelocityLocal.y() * sin_angle,
@@ -142,6 +145,13 @@ void Car::sumWheelForces() {
 
     static int debugCounter = 0;
     if (std::abs(angular_velocity) > 0.1 && debugCounter++ % 15 == 0) {
+        double cos_a = cos(angular_position);
+        double sin_a = sin(angular_position);
+        Eigen::Vector2d velocityLocal(
+            velocity.x() * cos_a - velocity.y() * sin_a,
+            velocity.x() * sin_a + velocity.y() * cos_a
+        );
+
         std::cout << "\n=== DEBUG (Local Coords) ===\n";
         std::cout << "Car Angle: " << angular_position * Constants::RAD_TO_DEG << "°\n";
         std::cout << "Velocity Local: [" << velocityLocal.x() << ", " << velocityLocal.y() << "]\n";
@@ -242,26 +252,13 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
         SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow2X, arrow2Y);
     }
 
-    double halfWidth = (Constants::CAR_WIDTH / 10.0) / 2.0;
-    double halfLength = (Constants::CAR_LENGTH / 10.0) / 2.0;
-
-    Eigen::Vector2d wheelPositions[4] = {
-        {-halfWidth, halfLength},
-        {halfWidth, halfLength},
-        {-halfWidth, -halfLength},
-        {halfWidth, -halfLength}
-    };
-
     double cos_angle = cos(angular_position);
     double sin_angle = sin(angular_position);
 
-    for (int i = 0; i < 4; i++) {
-        Wheel* wheel = wheels[i];
-        Eigen::Vector2d wheelPos = wheelPositions[i];
-
+    for (Wheel* wheel : wheels) {
         Eigen::Vector2d wheelPosWorld(
-            wheelPos.x() * cos_angle - wheelPos.y() * sin_angle,
-            wheelPos.x() * sin_angle + wheelPos.y() * cos_angle
+            wheel->position.x() * cos_angle - wheel->position.y() * sin_angle,
+            wheel->position.x() * sin_angle + wheel->position.y() * cos_angle
         );
 
         int wheelX = centerX + static_cast<int>(wheelPosWorld.x() * 10.0);

@@ -19,12 +19,14 @@ public:
     Eigen::Vector2d lastForce{0.0, 0.0};
     Eigen::Vector2d lastVelocity{0.0, 0.0};
 
+    Eigen::Vector2d position{0.0, 0.0};
+
+    double previousSlipError{0.0};
+
     Wheel();
 
     Eigen::Vector2d calculateFriction(Eigen::Vector2d wheelVelocityLocal, double time_interval);
 
-    // Calculate longitudinal slip ratio for traction control
-    // Returns: (wheel_speed - vehicle_speed) / vehicle_speed
     double calculateSlipRatio(Eigen::Vector2d wheelVelocityLocal);
 
     double getLinearVelocity();

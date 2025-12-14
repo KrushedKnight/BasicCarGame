@@ -18,7 +18,6 @@ class Car : public RigidBody {
         double braking_power{Constants::BRAKING_POWER};
 
         bool showDebugVectors{true};
-        double previous_slip{0};
 
         Wheel* frontLeft;
         Wheel* frontRight;
@@ -51,6 +50,8 @@ class Car : public RigidBody {
         SDL_Texture* carTexture{nullptr};
 
         SDL_Texture* getRectangleTexture(SDL_Renderer *renderer);
+
+        Eigen::Vector2d calculateWheelVelocityLocal(Eigen::Vector2d wheelPosition);
 };
 
 #endif
