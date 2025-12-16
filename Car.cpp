@@ -240,8 +240,6 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
 
     const double velocityScale = 5.0;
     const double accelScale = 20.0;
-    const double wheelVelocityScale = 0.5;
-    const double wheelForceScale = 0.05;
 
     if (velocity.norm() > 0.01) {
         int velEndX = centerX + static_cast<int>(velocity.x() * velocityScale);
@@ -277,45 +275,6 @@ void Car::drawDebugVectors(SDL_Renderer* renderer) {
 
         SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow1X, arrow1Y);
         SDL_RenderDrawLine(renderer, accelEndX, accelEndY, arrow2X, arrow2Y);
-    }
-
-    double cos_angle = cos(angular_position);
-    double sin_angle = sin(angular_position);
-
-    for (Wheel* wheel : wheels) {
-        Eigen::Vector2d wheelPosWorld(
-            wheel->position.x() * cos_angle - wheel->position.y() * sin_angle,
-            wheel->position.x() * sin_angle + wheel->position.y() * cos_angle
-        );
-
-        int wheelX = centerX + static_cast<int>(wheelPosWorld.x() * 10.0);
-        int wheelY = centerY - static_cast<int>(wheelPosWorld.y() * 10.0);
-
-        if (wheel->lastVelocity.norm() > 0.01) {
-            int velEndX = wheelX + static_cast<int>(wheel->lastVelocity.x() * wheelVelocityScale);
-            int velEndY = wheelY - static_cast<int>(wheel->lastVelocity.y() * wheelVelocityScale);
-
-            SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-            SDL_RenderDrawLine(renderer, wheelX, wheelY, velEndX, velEndY);
-        }
-
-        if (wheel->lastForce.norm() > 0.01) {
-            int forceEndX = wheelX + static_cast<int>(wheel->lastForce.x() * wheelForceScale);
-            int forceEndY = wheelY - static_cast<int>(wheel->lastForce.y() * wheelForceScale);
-
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-            SDL_RenderDrawLine(renderer, wheelX, wheelY, forceEndX, forceEndY);
-
-            double angle = std::atan2(-wheel->lastForce.y(), wheel->lastForce.x());
-            int arrowSize = 6;
-            int arrow1X = forceEndX - arrowSize * std::cos(angle - 0.5);
-            int arrow1Y = forceEndY - arrowSize * std::sin(angle - 0.5);
-            int arrow2X = forceEndX - arrowSize * std::cos(angle + 0.5);
-            int arrow2Y = forceEndY - arrowSize * std::sin(angle + 0.5);
-
-            SDL_RenderDrawLine(renderer, forceEndX, forceEndY, arrow1X, arrow1Y);
-            SDL_RenderDrawLine(renderer, forceEndX, forceEndY, arrow2X, arrow2Y);
-        }
     }
 }
 
