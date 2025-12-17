@@ -10,12 +10,12 @@ class Engine
 private:
     double rpm;
     double getVolumetricEfficiency();
-    double getAirFlowRate();
+    double getAirFlowRate(double throttle);
     double getAirFuelRatio();
-    double getPowerGenerated();
+    double getPowerGenerated(double throttle);
 
 
 public:
-    double updateRPM(double throttle);
+    double updateRPM(double throttle, double loadTorque);
     double calculateTorque(double throttle);
 };

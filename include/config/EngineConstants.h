@@ -16,4 +16,7 @@ namespace EngineConstants
     const double MAX_RPM = 8000;
     const double LATENT_HEAT = 1;
     const double ENGINE_EFFICIENCY = 1;
+    const double ENGINE_MOMENT_OF_INERTIA = 1;
+    const double R_AIR = 1;
+    const double AIR_TEMP = 1;
 }
