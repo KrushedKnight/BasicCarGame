@@ -9,7 +9,13 @@ class Engine
 {
 private:
     double rpm;
+    double getVolumetricEfficiency();
+    double getAirFlowRate();
+    double getAirFuelRatio();
+    double getPowerGenerated();
+
 
 public:
-    double calculateTorque();
+    double updateRPM(double throttle);
+    double calculateTorque(double throttle);
 };
