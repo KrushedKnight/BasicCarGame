@@ -76,11 +76,45 @@ void GUI::drawText(SDL_Renderer* renderer, const std::string& text, int x, int y
     SDL_FreeSurface(surface);
 }
 
-std::vector<std::string> GUI::formatCarStats(const Car& car) {
+std::vector<std::string> GUI::formatCarStats(const Car& car, double throttle) {
     std::vector<std::string> stats;
     std::ostringstream oss;
 
-    oss << std::fixed << std::setprecision(1);
+    const Engine& engine = car.getEngine();
+
+    stats.push_back("--- Engine ---");
+    oss << std::fixed << std::setprecision(0);
+    oss << "RPM: " << engine.getRPM();
+    stats.push_back(oss.str());
+    oss.str("");
+
+    oss << std::setprecision(1);
+    oss << "Power: " << (engine.getPowerGeneratedValue(throttle) / 1000.0) << " kW";
+    stats.push_back(oss.str());
+    oss.str("");
+
+    oss << "Torque: " << engine.getEngineTorque() << " N·m";
+    stats.push_back(oss.str());
+    oss.str("");
+
+    oss << std::setprecision(2);
+    oss << "AFR: " << engine.getAirFuelRatioValue();
+    stats.push_back(oss.str());
+    oss.str("");
+
+    oss << "Vol Eff: " << (engine.getVolumetricEfficiencyValue() * 100) << "%";
+    stats.push_back(oss.str());
+    oss.str("");
+
+    oss << std::setprecision(4);
+    oss << "Air Flow: " << engine.getAirFlowRateValue(throttle) << " kg/s";
+    stats.push_back(oss.str());
+    oss.str("");
+
+    stats.push_back("");
+    stats.push_back("--- Vehicle ---");
+
+    oss << std::setprecision(1);
     oss << "Position: (" << car.pos_x << ", " << car.pos_y << ")";
     stats.push_back(oss.str());
     oss.str("");
@@ -148,13 +182,13 @@ std::vector<std::string> GUI::formatCarStats(const Car& car) {
     return stats;
 }
 
-void GUI::drawHUD(SDL_Renderer* renderer, const Car& car) {
+void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
     if (!visible) return;
 
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
-    std::vector<std::string> stats = formatCarStats(car);
+    std::vector<std::string> stats = formatCarStats(car, throttle);
 
     int padding = std::max(5, windowHeight / 100);
     int lineHeight = fontSize + std::max(2, windowHeight / 250);

@@ -52,6 +52,8 @@ class Car : public RigidBody {
         int getCurrentGear() const;
         bool isClutchHeld() const;
 
+        const Engine& getEngine() const;
+
         void sumWheelForces();
         void moveWheels();
         void updateLoadTransfer();

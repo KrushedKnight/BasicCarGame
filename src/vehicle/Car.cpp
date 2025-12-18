@@ -325,3 +325,7 @@ int Car::getCurrentGear() const {
 bool Car::isClutchHeld() const {
     return gearbox.isClutchHeld();
 }
+
+const Engine& Car::getEngine() const {
+    return engine;
+}

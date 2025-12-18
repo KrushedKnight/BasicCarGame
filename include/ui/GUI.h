@@ -15,7 +15,7 @@ public:
 
     bool initialize(const char* fontPath = nullptr, int fontSize = 16);
 
-    void drawHUD(SDL_Renderer* renderer, const Car& car);
+    void drawHUD(SDL_Renderer* renderer, const Car& car, double throttle);
 
     void updateGraphs(const Car& car, double throttle, double brake, double steering);
 
@@ -36,7 +36,7 @@ private:
 
     std::vector<Graph> graphs;
 
-    std::vector<std::string> formatCarStats(const Car& car);
+    std::vector<std::string> formatCarStats(const Car& car, double throttle);
 
     void drawGraphs(SDL_Renderer* renderer);
 };

@@ -19,7 +19,14 @@ private:
 
 public:
     void updateRPM(double throttle);
-    double getRPM();
+    double getRPM() const;
     double calculateTorque(double throttle);
-    double addLoadTorque(double torque);
+    void addLoadTorque(double torque);
+
+    double getEngineTorque() const;
+    double getLoadTorque() const;
+    double getAirFuelRatioValue() const;
+    double getVolumetricEfficiencyValue() const;
+    double getAirFlowRateValue(double throttle) const;
+    double getPowerGeneratedValue(double throttle) const;
 };

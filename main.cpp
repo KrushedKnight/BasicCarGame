@@ -92,8 +92,8 @@ int main(int argc, char* argv[]) {
         double steering = 0.0;
 
         if (keystate[SDL_SCANCODE_W]) {
-            car.applyEngineTorque(0.6);
-            throttle = 1.0;
+            throttle = 0.6;
+            car.applyEngineTorque(throttle);
         }
         if (keystate[SDL_SCANCODE_S]) {
             car.applyBrakes();
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
 
         car.eraseCar(renderer);
         car.drawCar(renderer);
-        gui.drawHUD(renderer, car);
+        gui.drawHUD(renderer, car, throttle);
         SDL_RenderPresent(renderer);
 
         car.incrementTime(PhysicsConstants::TIME_INTERVAL);
