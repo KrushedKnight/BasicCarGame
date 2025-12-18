@@ -78,4 +78,22 @@ bool Gearbox::shiftUp()
     return false;
 }
 
+double Gearbox::convertEngineTorqueToWheel(double engineTorque)
+{
+    if (selectedGear == -1 || clutchEngaged)
+    {
+        return 0.0;
+    }
+    return engineTorque / engineToWheelRatio();
+}
+
+double Gearbox::convertWheelTorqueToEngine(double wheelTorque)
+{
+    if (selectedGear == -1 || clutchEngaged)
+    {
+        return 0.0;
+    }
+    return wheelTorque / engineToWheelRatio();
+}
+
 

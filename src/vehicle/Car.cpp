@@ -81,7 +81,9 @@ void Car::applyForceFeedback()
     frontRight->wheelAngle = steering_angle * PhysicsConstants::STEERING_RACK;
 }
 
-void Car::applyEngineTorque(double throttle) {
+void Car::updateEngine(double throttle) {
+    engine.calculateTorque(throttle);
+
     Wheel* rearWheels[] = {backLeft, backRight};
 
     double wheelLoadTorque = 0;
@@ -93,7 +95,7 @@ void Car::applyEngineTorque(double throttle) {
         }
 
         Eigen::Vector2d wheelVelocityLocal = calculateWheelVelocityLocal(wheel->position);
-        double baseTorque = engine.calculateTorque(throttle) / gearbox.engineToWheelRatio();
+        double baseTorque = gearbox.convertEngineTorqueToWheel(engine.getEngineTorque());
 
         double adjustedTorque = tcs.regulateTorque(
             *wheel,
@@ -102,10 +104,10 @@ void Car::applyEngineTorque(double throttle) {
             wheelVelocityLocal,
             PhysicsConstants::TIME_INTERVAL
         );
-        wheelLoadTorque += wheel->angular_torque; //make sure this sign is correct
+        wheelLoadTorque += wheel->angular_torque;
         wheel->addTorque(adjustedTorque);
     }
-    double engineLoadTorque = wheelLoadTorque / gearbox.engineToWheelRatio();
+    double engineLoadTorque = gearbox.convertWheelTorqueToEngine(wheelLoadTorque);
     engine.addLoadTorque(engineLoadTorque);
     engine.updateRPM(throttle);
 }

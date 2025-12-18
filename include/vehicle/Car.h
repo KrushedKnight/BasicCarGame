@@ -40,7 +40,7 @@ class Car : public RigidBody {
         double getAngleToWheel(Wheel *wheel);
 
         void applySteering(double amount);
-        void applyEngineTorque(double throttle);
+        void updateEngine(double throttle);
         void applyBrakes();
         void applyForceFeedback();
 

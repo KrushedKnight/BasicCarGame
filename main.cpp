@@ -93,7 +93,6 @@ int main(int argc, char* argv[]) {
 
         if (keystate[SDL_SCANCODE_W]) {
             throttle = 0.6;
-            car.applyEngineTorque(throttle);
         }
         if (keystate[SDL_SCANCODE_S]) {
             car.applyBrakes();
@@ -114,6 +113,7 @@ int main(int argc, char* argv[]) {
             car.releaseClutch();
         }
 
+        car.updateEngine(throttle);
         car.sumWheelForces();
 
         gui.updateGraphs(car, throttle, brake, steering);

@@ -18,6 +18,9 @@ public:
     double engineToWheelRatio();
     double wheelToEngineRatio();
 
+    double convertEngineTorqueToWheel(double engineTorque);
+    double convertWheelTorqueToEngine(double wheelTorque);
+
     bool isClutchHeld() const;
     void holdClutch();
     void releaseClutch();
