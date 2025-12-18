@@ -1,28 +1,29 @@
 #include "vehicle/Gearbox.h"
 
+#include "config/PhysicsConstants.h"
 #include "vehicle/Engine.h"
 
 Gearbox::Gearbox(const std::vector<double>& ratios, double finalDriveRatio)
 {
     this->gearRatios = ratios;
     this->finalDrive = finalDriveRatio;
-    this->clutchEngaged = false;
+    this->clutchPressed = false;
     this->selectedGear = -1;
 }
 
 bool Gearbox::isClutchHeld() const
 {
-    return clutchEngaged;
+    return clutchPressed;
 }
 
 void Gearbox::holdClutch()
 {
-    clutchEngaged = true;
+    clutchPressed = true;
 }
 
 void Gearbox::releaseClutch()
 {
-    clutchEngaged = false;
+    clutchPressed = false;
 }
 
 double Gearbox::engineToWheelRatio()
@@ -78,22 +79,46 @@ bool Gearbox::shiftUp()
     return false;
 }
 
+double Gearbox::calculateBite()
+{
+    double bite;
+    if (clutchEngagement < 0.6)
+        bite = 0.0;
+    else if (clutchEngagement > 0.9)
+        bite = 1.0;
+    else
+        bite = (clutchEngagement - 0.6) / (0.9 - 0.6);
+
+    return bite;
+}
 double Gearbox::convertEngineTorqueToWheel(double engineTorque)
 {
-    if (selectedGear == -1 || clutchEngaged)
+    if (selectedGear == -1 || clutchPressed)
     {
         return 0.0;
     }
+
+    double bite = calculateBite();
+    double torqueMax = bite * PhysicsConstants::CLUTCH_MAX_TORQUE;
+
     return engineTorque / engineToWheelRatio();
 }
 
 double Gearbox::convertWheelTorqueToEngine(double wheelTorque)
 {
-    if (selectedGear == -1 || clutchEngaged)
+    if (selectedGear == -1 || clutchPressed)
     {
         return 0.0;
     }
-    return wheelTorque / engineToWheelRatio();
+    loadTorque = wheelTorque / engineToWheelRatio();
+    return loadTorque;
 }
 
+
+void Gearbox::update()
+{
+    double target = clutchPressed ? 0.0 : 1.0;
+    double rate = target > clutchEngagement ? 12.0 : 6.0;
+    clutchEngagement += (target - clutchEngagement) * rate * PhysicsConstants::TIME_INTERVAL;
+}
 

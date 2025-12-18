@@ -10,7 +10,13 @@ private:
     int selectedGear;
     std::vector<double> gearRatios;
     double finalDrive;
-    bool clutchEngaged;
+    bool clutchPressed;
+    double clutchEngagement;
+    double loadTorque;
+    double engineTorque;
+
+
+//for tomorrow, this is all getting super super confusing needs updates to the system. basically loadTorque and engineTorque should be stored in gearbox class and gearbox should act on engine and load.
 
 public:
     Gearbox(const std::vector<double>& ratios, double finalDriveRatio);
@@ -30,6 +36,8 @@ public:
 
     int getCurrentGear() const;
     double getGearRatio() const;
+
+    void update();
 };
 
 #endif
