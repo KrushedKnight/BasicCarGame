@@ -19,4 +19,5 @@ namespace EngineConstants
     const double ENGINE_MOMENT_OF_INERTIA = 0.8;
     const double R_AIR = 287;
     const double AIR_TEMP = 298;
+    const double ENGINE_FRICTION_COEFFICIENT = 0.02;
 }

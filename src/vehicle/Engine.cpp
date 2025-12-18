@@ -36,10 +36,12 @@ double Engine::getPowerGenerated(double throttle)
 
 void Engine::updateRPM(double throttle)
 {
-    double netTorque = engineTorque - loadTorque;
-    loadTorque = 0;
+    double frictionTorque = EngineConstants::ENGINE_FRICTION_COEFFICIENT * rpm;
+    double netTorque = engineTorque - loadTorque - frictionTorque;
     rpm = rpm + (netTorque / EngineConstants::ENGINE_MOMENT_OF_INERTIA) * (30 / M_PI) * PhysicsConstants::TIME_INTERVAL;
     rpm = std::max(rpm, 1000.0);
+
+    loadTorque = 0;
 }
 
 double Engine::getRPM() const
