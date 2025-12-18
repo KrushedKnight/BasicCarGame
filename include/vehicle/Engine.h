@@ -8,7 +8,7 @@
 class Engine
 {
 private:
-    double rpm{0};
+    double rpm{1000};
     double loadTorque{0};
     double engineTorque{0};
     double getVolumetricEfficiency();

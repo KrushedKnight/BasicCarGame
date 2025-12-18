@@ -39,6 +39,7 @@ void Engine::updateRPM(double throttle)
     double netTorque = engineTorque - loadTorque;
     loadTorque = 0;
     rpm = rpm + (netTorque / EngineConstants::ENGINE_MOMENT_OF_INERTIA) * (30 / M_PI) * PhysicsConstants::TIME_INTERVAL;
+    rpm = std::max(rpm, 1000.0);
 }
 
 double Engine::getRPM()
