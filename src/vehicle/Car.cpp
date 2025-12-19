@@ -91,6 +91,12 @@ void Car::updateEngine(double throttle) {
     engine.addLoadTorque(gearbox.getClutchTorque());
     engine.updateRPM(throttle);
 
+    if (engine.getRPM() < 800.0 && getCurrentGear() != -1) {
+        while (getCurrentGear() > -1) {
+            gearbox.shiftDown();
+        }
+    }
+
     for (Wheel* wheel : rearWheels) {
         if (wheel->angular_velocity * wheel->wheelRadius >= PhysicsConstants::CAR_TOP_SPEED)
         {

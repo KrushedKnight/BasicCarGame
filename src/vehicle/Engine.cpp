@@ -50,8 +50,14 @@ double Engine::getRPM() const
 
 double Engine::calculateTorque(double throttle)
 {
+    double effectiveThrottle = throttle;
+
+    if (throttle < 0.01 && rpm < 1200.0) {
+        effectiveThrottle = 0.15;
+    }
+
     double angularSpeed = (2.0 * M_PI * rpm) / 60.0;
-    engineTorque = getPowerGenerated(throttle) / angularSpeed;
+    engineTorque = getPowerGenerated(effectiveThrottle) / angularSpeed;
     return engineTorque;
 }
 
