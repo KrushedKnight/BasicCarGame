@@ -32,7 +32,7 @@ void Gearbox::releaseClutch()
 
 double Gearbox::engineToWheelRatio()
 {
-    return (this->getGearRatio() * this->finalDrive);
+    return this->getGearRatio();
 }
 
 double Gearbox::wheelToEngineRatio()
