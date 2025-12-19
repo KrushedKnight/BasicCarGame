@@ -11,7 +11,14 @@ void Engine::addLoadTorque(double torque)
 }
 double Engine::getVolumetricEfficiency()
 {
-    return 0.8; //placeholder- should be a function of rpm
+    double peakRPM = 5000.0;
+    double rpmRatio = rpm / peakRPM;
+
+    if (rpm < peakRPM) {
+        return 0.8 * (0.5 + 0.5 * rpmRatio);
+    } else {
+        return 0.8 / (1.0 + 0.3 * (rpmRatio - 1.0));
+    }
 }
 
 
@@ -53,7 +60,7 @@ double Engine::calculateTorque(double throttle)
     double effectiveThrottle = throttle;
 
     if (throttle < 0.01 && rpm < 1200.0) {
-        effectiveThrottle = 0.15;
+        effectiveThrottle = 0.05;
     }
 
     double angularSpeed = (2.0 * M_PI * rpm) / 60.0;
