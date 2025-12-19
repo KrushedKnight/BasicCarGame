@@ -116,7 +116,6 @@ void Car::applyBrakes() {
         double vehicleSpeed = std::abs(wheelVelocityLocal.dot(wheelForward));
 
         double requestedBrakeTorque = braking_power * wheel->wheelRadius;
-
         double adjustedBrakeTorque = abs.regulateBrakePressure(
             *wheel,
             requestedBrakeTorque,

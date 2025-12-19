@@ -104,14 +104,18 @@ double Gearbox::convertEngineTorqueToWheel(double engineTorque, Engine* engine, 
     }
 
     double bite = calculateBite();
-    double torqueMax = bite * PhysicsConstants::CLUTCH_MAX_TORQUE;
 
+    double torqueClutch;
 
-    double engineOmega = (2.0 * M_PI * engine->getRPM()) / 60.0;
-    double transOmega = wheelOmega * wheelToEngineRatio();
-
-    double slip = engineOmega - transOmega;
-    double torqueClutch = std::clamp(slip * PhysicsConstants::CLUTCH_SLIP_K, -torqueMax, torqueMax);
+    if (bite >= 1.0) {
+        torqueClutch = engineTorque;
+    } else {
+        double torqueMax = bite * PhysicsConstants::CLUTCH_MAX_TORQUE;
+        double engineOmega = (2.0 * M_PI * engine->getRPM()) / 60.0;
+        double transOmega = wheelOmega * wheelToEngineRatio();
+        double slip = engineOmega - transOmega;
+        torqueClutch = std::clamp(slip * PhysicsConstants::CLUTCH_SLIP_K, -torqueMax, torqueMax);
+    }
 
     this->engineTorque = engineTorque - torqueClutch;
     this->clutchTorque = torqueClutch;
