@@ -66,19 +66,66 @@ Eigen::Vector2d Car::calculateWheelVelocityLocal(Eigen::Vector2d wheelPosition) 
 }
 
 void Car::applySteering(double amount) {
-    steering_angle += amount;
+    double speed = velocity.norm();
+    double maxSpeed = 50.0;
+    double speedFactor = 1.0 - (speed / maxSpeed) * 0.5;
+    speedFactor = std::max(0.5, speedFactor);
+
+    steering_angle += amount * speedFactor;
     steering_angle = std::clamp(steering_angle, -PhysicsConstants::MAX_STEERING_ANGLE, PhysicsConstants::MAX_STEERING_ANGLE);
 
-    frontLeft->wheelAngle = steering_angle * PhysicsConstants::STEERING_RACK;
-    frontRight->wheelAngle = steering_angle * PhysicsConstants::STEERING_RACK;
+    double wheelbase = RenderingConstants::WHEELBASE;
+    double trackWidth = RenderingConstants::TRACK_WIDTH;
+    double steeringRack = PhysicsConstants::STEERING_RACK;
+    double baseAngle = steering_angle * steeringRack;
+
+    if (std::abs(baseAngle) < 0.001) {
+        frontLeft->wheelAngle = 0.0;
+        frontRight->wheelAngle = 0.0;
+    } else {
+        double turnRadius = wheelbase / std::tan(std::abs(baseAngle));
+
+        if (steering_angle > 0) {
+            double innerRadius = turnRadius - trackWidth / 2.0;
+            double outerRadius = turnRadius + trackWidth / 2.0;
+            frontLeft->wheelAngle = std::atan(wheelbase / innerRadius);
+            frontRight->wheelAngle = std::atan(wheelbase / outerRadius);
+        } else {
+            double innerRadius = turnRadius - trackWidth / 2.0;
+            double outerRadius = turnRadius + trackWidth / 2.0;
+            frontLeft->wheelAngle = -std::atan(wheelbase / outerRadius);
+            frontRight->wheelAngle = -std::atan(wheelbase / innerRadius);
+        }
+    }
 }
 
 void Car::applyForceFeedback()
 {
     steering_angle *= PhysicsConstants::FORCE_FEEDBACK_DECAY;
 
-    frontLeft->wheelAngle = steering_angle * PhysicsConstants::STEERING_RACK;
-    frontRight->wheelAngle = steering_angle * PhysicsConstants::STEERING_RACK;
+    double wheelbase = RenderingConstants::WHEELBASE;
+    double trackWidth = RenderingConstants::TRACK_WIDTH;
+    double steeringRack = PhysicsConstants::STEERING_RACK;
+    double baseAngle = steering_angle * steeringRack;
+
+    if (std::abs(baseAngle) < 0.001) {
+        frontLeft->wheelAngle = 0.0;
+        frontRight->wheelAngle = 0.0;
+    } else {
+        double turnRadius = wheelbase / std::tan(std::abs(baseAngle));
+
+        if (steering_angle > 0) {
+            double innerRadius = turnRadius - trackWidth / 2.0;
+            double outerRadius = turnRadius + trackWidth / 2.0;
+            frontLeft->wheelAngle = std::atan(wheelbase / innerRadius);
+            frontRight->wheelAngle = std::atan(wheelbase / outerRadius);
+        } else {
+            double innerRadius = turnRadius - trackWidth / 2.0;
+            double outerRadius = turnRadius + trackWidth / 2.0;
+            frontLeft->wheelAngle = -std::atan(wheelbase / outerRadius);
+            frontRight->wheelAngle = -std::atan(wheelbase / innerRadius);
+        }
+    }
 }
 
 void Car::updateEngine(double throttle) {
