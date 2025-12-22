@@ -36,6 +36,8 @@ public:
     void clearForces();
     void clearTorques();
 
+    void updateAcceleration();
+
     void incrementTime(double time_interval);
 };
 

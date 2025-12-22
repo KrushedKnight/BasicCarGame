@@ -47,6 +47,11 @@ const std::map<std::string, Eigen::Vector2d>& RigidBody::getNamedForces() const 
     return namedForces;
 }
 
+void RigidBody::updateAcceleration() {
+    acceleration = forces / mass;
+    angular_acceleration = angular_torque / moment_of_inertia;
+}
+
 void RigidBody::incrementTime(double time_interval) {
     acceleration = forces / mass;
 

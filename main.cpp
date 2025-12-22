@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
 
         car.updateEngine(throttle);
         car.sumWheelForces();
+        car.updateAcceleration();
 
         gui.updateGraphs(car, throttle, brake, steering);
 
