@@ -24,6 +24,7 @@ add_executable(SimpleTrafficGame main.cpp
         src/ui/GUI.cpp
         src/ui/Graph.cpp
         src/ui/FreeBodyDiagram.cpp
+        src/ui/Dial.cpp
         src/config/constants.cpp
         include/core/RigidBody.h
         include/vehicle/Wheel.h
@@ -33,6 +34,7 @@ add_executable(SimpleTrafficGame main.cpp
         include/ui/GUI.h
         include/ui/Graph.h
         include/ui/FreeBodyDiagram.h
+        include/ui/Dial.h
         include/config/constants.h
         include/vehicle/Engine.h
         src/vehicle/Engine.cpp

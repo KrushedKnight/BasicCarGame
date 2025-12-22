@@ -7,6 +7,7 @@
 #include <vector>
 #include "vehicle/Car.h"
 #include "ui/Graph.h"
+#include "ui/Dial.h"
 
 class GUI {
 public:
@@ -28,17 +29,23 @@ public:
     void toggleGraphs();
     bool areGraphsVisible() const { return showGraphs; }
 
+    void toggleDials();
+    bool areDialsVisible() const { return showDials; }
+
 private:
     TTF_Font* font;
     bool visible;
     bool showGraphs;
+    bool showDials;
     int fontSize;
 
     std::vector<Graph> graphs;
+    Dial rpmDial;
 
     std::vector<std::string> formatCarStats(const Car& car, double throttle);
 
     void drawGraphs(SDL_Renderer* renderer);
+    void drawDials(SDL_Renderer* renderer, const Car& car);
 };
 
 #endif

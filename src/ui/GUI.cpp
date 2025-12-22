@@ -4,7 +4,8 @@
 #include <iomanip>
 #include <cmath>
 
-GUI::GUI() : font(nullptr), visible(true), showGraphs(true), fontSize(16) {
+GUI::GUI() : font(nullptr), visible(true), showGraphs(true), showDials(true), fontSize(16),
+             rpmDial(0.0, 8000.0, "ENGINE SPEED", "RPM") {
     graphs.emplace_back("Speed (m/s)", SDL_Color{0, 255, 0, 255}, 0.0, 50.0);
     graphs.emplace_back("Throttle/Brake", SDL_Color{255, 165, 0, 255}, -1.0, 1.0);
     graphs.emplace_back("Steering", SDL_Color{100, 200, 255, 255}, -1.0, 1.0);
@@ -355,6 +356,7 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
     drawText(renderer, clutchText, textX, gearTextY + lineHeight, clutchColor);
 
     drawGraphs(renderer);
+    drawDials(renderer, car);
 }
 
 void GUI::toggleHUD() {
@@ -363,6 +365,10 @@ void GUI::toggleHUD() {
 
 void GUI::toggleGraphs() {
     showGraphs = !showGraphs;
+}
+
+void GUI::toggleDials() {
+    showDials = !showDials;
 }
 
 void GUI::updateGraphs(const Car& car, double throttle, double brake, double steering) {
@@ -397,4 +403,18 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
         int graphY = startY + static_cast<int>(i) * (graphHeight + graphPadding);
         graphs[i].render(renderer, startX, graphY, graphWidth, graphHeight, font);
     }
+}
+
+void GUI::drawDials(SDL_Renderer* renderer, const Car& car) {
+    if (!showDials) return;
+
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+
+    int dialRadius = std::min(windowWidth, windowHeight) / 8;
+    int centerX = windowWidth / 2;
+    int centerY = windowHeight - dialRadius - 50;
+
+    rpmDial.setValue(car.getEngine().getRPM());
+    rpmDial.draw(renderer, centerX, centerY, dialRadius, font);
 }
