@@ -59,12 +59,13 @@ double Engine::calculateTorque(double throttle)
 {
     double effectiveThrottle = throttle;
 
-    if (throttle < 0.01 && rpm < 1200.0) {
+    if (throttle < 0.01) {
         effectiveThrottle = 0.05;
     }
 
     double angularSpeed = (2.0 * M_PI * rpm) / 60.0;
-    engineTorque = getPowerGenerated(effectiveThrottle) / angularSpeed;
+    currentPower = getPowerGenerated(effectiveThrottle);
+    engineTorque = currentPower / angularSpeed;
     return engineTorque;
 }
 
@@ -76,6 +77,11 @@ double Engine::getEngineTorque() const
 double Engine::getLoadTorque() const
 {
     return loadTorque;
+}
+
+double Engine::getCurrentPower() const
+{
+    return currentPower;
 }
 
 double Engine::getAirFuelRatioValue() const

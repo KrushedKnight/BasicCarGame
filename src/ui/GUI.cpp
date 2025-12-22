@@ -90,7 +90,7 @@ std::vector<std::string> GUI::formatCarStats(const Car& car, double throttle) {
     oss.str("");
 
     oss << std::setprecision(1);
-    oss << "Power: " << (engine.getPowerGeneratedValue(throttle) / 1000.0) << " kW";
+    oss << "Power: " << (engine.getCurrentPower() / 1000.0) << " kW";
     stats.push_back(oss.str());
     oss.str("");
 
