@@ -63,8 +63,11 @@ double Engine::calculateTorque(double throttle)
         effectiveThrottle = 0.05;
     }
 
-    double angularSpeed = (2.0 * M_PI * rpm) / 60.0;
+    currentVolumetricEfficiency = getVolumetricEfficiency();
+    currentAirFlowRate = getAirFlowRate(effectiveThrottle);
     currentPower = getPowerGenerated(effectiveThrottle);
+
+    double angularSpeed = (2.0 * M_PI * rpm) / 60.0;
     engineTorque = currentPower / angularSpeed;
     return engineTorque;
 }
@@ -91,20 +94,17 @@ double Engine::getAirFuelRatioValue() const
 
 double Engine::getVolumetricEfficiencyValue() const
 {
-    return 0.8;
+    return currentVolumetricEfficiency;
 }
 
-double Engine::getAirFlowRateValue(double throttle) const
+double Engine::getAirFlowRateValue() const
 {
-    double airDensity = EngineConstants::INTAKE_MANIFOLD_PRESSURE / (EngineConstants::R_AIR * EngineConstants::AIR_TEMP);
-    double volumetricEfficiency = 0.8;
-    double airMassPerCycle = volumetricEfficiency * airDensity * EngineConstants::CYLINDER_VOLUME * throttle;
-    return airMassPerCycle * (rpm / 120.0);
+    return currentAirFlowRate;
 }
 
 double Engine::getPowerGeneratedValue(double throttle) const
 {
-    double airFlowRate = getAirFlowRateValue(throttle);
+    double airFlowRate = getAirFlowRateValue();
     double fuelMass = airFlowRate / 14.7;
     double powerGenerated = fuelMass * EngineConstants::LATENT_HEAT * EngineConstants::ENGINE_EFFICIENCY;
     return powerGenerated;

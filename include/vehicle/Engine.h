@@ -12,6 +12,8 @@ private:
     double loadTorque{0};
     double engineTorque{0};
     double currentPower{0};
+    double currentVolumetricEfficiency{0.8};
+    double currentAirFlowRate{0};
     double getVolumetricEfficiency();
     double getAirFlowRate(double throttle);
     double getAirFuelRatio();
@@ -29,6 +31,6 @@ public:
     double getCurrentPower() const;
     double getAirFuelRatioValue() const;
     double getVolumetricEfficiencyValue() const;
-    double getAirFlowRateValue(double throttle) const;
+    double getAirFlowRateValue() const;
     double getPowerGeneratedValue(double throttle) const;
 };

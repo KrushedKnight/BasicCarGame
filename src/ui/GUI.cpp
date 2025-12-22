@@ -118,7 +118,7 @@ std::vector<std::string> GUI::formatCarStats(const Car& car, double throttle) {
     oss.str("");
 
     oss << std::setprecision(4);
-    oss << "Air Flow: " << engine.getAirFlowRateValue(throttle) << " kg/s";
+    oss << "Air Flow: " << engine.getAirFlowRateValue() << " kg/s";
     stats.push_back(oss.str());
     oss.str("");
 
