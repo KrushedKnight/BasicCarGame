@@ -45,7 +45,9 @@ void Engine::updateRPM(double throttle)
 {
     double frictionTorque = EngineConstants::ENGINE_FRICTION_COEFFICIENT * rpm;
     double netTorque = engineTorque - loadTorque - frictionTorque;
-    rpm = std::min(8000.0, rpm + (netTorque / EngineConstants::ENGINE_MOMENT_OF_INERTIA) * (30 / M_PI) * PhysicsConstants::TIME_INTERVAL);
+    rpm += (netTorque / EngineConstants::ENGINE_MOMENT_OF_INERTIA) * (30 / M_PI) * PhysicsConstants::TIME_INTERVAL;
+
+    rpm = std::clamp(rpm, 0.0, 8000.0);
 
     loadTorque = 0;
 }
@@ -59,7 +61,9 @@ double Engine::calculateTorque(double throttle)
 {
     double effectiveThrottle = throttle;
 
-    if (throttle < 0.01) {
+    if (rpm >= 8000.0) {
+        effectiveThrottle = 0.0;
+    } else if (throttle < 0.01) {
         effectiveThrottle = 0.05;
     }
 
