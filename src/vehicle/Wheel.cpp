@@ -31,7 +31,11 @@ Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d wheelVelocityLocal, dou
     double longitudinalSlip = wheelLinearVelocity - velocityInWheelDir;
 
     double wheelMass = normalForce / 9.81;
-    double maxFrictionForce = normalForce * frictionCoefficient;
+
+    double nominalLoad = 2943.0;
+    double loadSensitivity = 0.9;
+    double loadFactor = std::pow(normalForce / nominalLoad, loadSensitivity);
+    double maxFrictionForce = nominalLoad * frictionCoefficient * loadFactor;
 
     double longitudinalFriction = 0.0;
     if (std::abs(longitudinalSlip) > 1e-5) {

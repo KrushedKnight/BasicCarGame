@@ -260,15 +260,19 @@ void Car::updateLoadTransfer() {
     double track_width = RenderingConstants::TRACK_WIDTH;
     double cg_height = PhysicsConstants::CG_HEIGHT;
     double weight = PhysicsConstants::CAR_WEIGHT;
-    double nominal_load = weight / 4.0;
+
+    double frontWeightBias = 0.6;
+    double rearWeightBias = 0.4;
+    double frontNominalLoad = (weight * frontWeightBias) / 2.0;
+    double rearNominalLoad = (weight * rearWeightBias) / 2.0;
 
     double dFz_longitudinal = -mass * ax_local * cg_height / wheelbase;
     double dFz_lateral = -mass * ay_local * cg_height / track_width;
 
-    frontLeft->normalForce = nominal_load + dFz_longitudinal - dFz_lateral;
-    frontRight->normalForce = nominal_load + dFz_longitudinal + dFz_lateral;
-    backLeft->normalForce = nominal_load - dFz_longitudinal - dFz_lateral;
-    backRight->normalForce = nominal_load - dFz_longitudinal + dFz_lateral;
+    frontLeft->normalForce = frontNominalLoad + dFz_longitudinal - dFz_lateral;
+    frontRight->normalForce = frontNominalLoad + dFz_longitudinal + dFz_lateral;
+    backLeft->normalForce = rearNominalLoad - dFz_longitudinal - dFz_lateral;
+    backRight->normalForce = rearNominalLoad - dFz_longitudinal + dFz_lateral;
 
     for (Wheel* wheel : wheels) {
         wheel->normalForce = std::max(100.0, wheel->normalForce);
