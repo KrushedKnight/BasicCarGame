@@ -46,6 +46,9 @@ private:
     Dial airFlowDial;
     Dial manifoldPressureDial;
     Dial speedDial;
+    Dial volEffDial;
+    Dial afrDial;
+    Dial powerDial;
 
     std::vector<std::string> formatCarStats(const Car& car, double throttle);
 

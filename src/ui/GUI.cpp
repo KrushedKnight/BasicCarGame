@@ -9,7 +9,10 @@ GUI::GUI() : font(nullptr), dialFont(nullptr), visible(true), showGraphs(true), 
              torqueDial(0.0, 400.0, "TORQUE", "Nm"),
              airFlowDial(0.0, 0.05, "AIR FLOW", "kg/s"),
              manifoldPressureDial(0.0, 150.0, "MANIFOLD", "kPa"),
-             speedDial(0.0, 300.0, "SPEED", "km/h") {
+             speedDial(0.0, 300.0, "SPEED", "km/h"),
+             volEffDial(0.0, 1.0, "VOL EFF", "%"),
+             afrDial(0.0, 20.0, "AFR", ""),
+             powerDial(0.0, 200.0, "POWER", "kW") {
     graphs.emplace_back("Speed (m/s)", SDL_Color{0, 255, 0, 255}, 0.0, 50.0);
     graphs.emplace_back("Throttle/Brake", SDL_Color{255, 165, 0, 255}, -1.0, 1.0);
     graphs.emplace_back("Steering", SDL_Color{100, 200, 255, 255}, -1.0, 1.0);
@@ -113,35 +116,9 @@ std::vector<std::string> GUI::formatCarStats(const Car& car, double throttle) {
     const Engine& engine = car.getEngine();
     const Gearbox& gearbox = car.getGearbox();
 
-    stats.push_back("--- Engine ---");
-    oss << std::fixed << std::setprecision(1);
-    oss << "Power: " << (engine.getCurrentPower() / 1000.0) << " kW";
-    stats.push_back(oss.str());
-    oss.str("");
-
-    oss << std::setprecision(2);
-    oss << "Clutch Eng: " << (gearbox.getClutchEngagement() * 100) << "%";
-    stats.push_back(oss.str());
-    oss.str("");
-
-    oss << std::setprecision(1);
-    oss << "Clutch Torque: " << gearbox.getClutchTorque() << " N·m";
-    stats.push_back(oss.str());
-    oss.str("");
-
-    oss << std::setprecision(2);
-    oss << "AFR: " << engine.getAirFuelRatioValue();
-    stats.push_back(oss.str());
-    oss.str("");
-
-    oss << "Vol Eff: " << (engine.getVolumetricEfficiencyValue() * 100) << "%";
-    stats.push_back(oss.str());
-    oss.str("");
-
-    stats.push_back("");
     stats.push_back("--- Vehicle ---");
 
-    oss << std::setprecision(1);
+    oss << std::fixed << std::setprecision(1);
     oss << "Position: (" << car.pos_x << ", " << car.pos_y << ")";
     stats.push_back(oss.str());
     oss.str("");
@@ -381,11 +358,6 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
     int marginX = std::max(15, windowWidth / 150);
     int marginY = std::max(10, windowHeight / 100);
 
-    int leftStartX = marginX;
-    int leftStartY = windowHeight / 3;
-
-    graphs[3].render(renderer, leftStartX, leftStartY, graphWidth, graphHeight, font);
-
     int baseRadius = std::max(50, std::min(windowWidth, windowHeight) / 16);
     int dialRadius = static_cast<int>(baseRadius * 1.55);
     int dialBottomY = marginY + dialRadius * 2 + marginY;
@@ -400,6 +372,9 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
     int bottomStartY = windowHeight - (graphHeight + graphPadding) * 4 - marginY;
     int bottomStartX = marginX;
 
+    int clutchSlipY = bottomStartY - graphHeight - graphPadding * 3;
+    graphs[3].render(renderer, bottomStartX, clutchSlipY, graphWidth, graphHeight, font);
+
     graphs[5].render(renderer, bottomStartX, bottomStartY, graphWidth, graphHeight, font);
     graphs[6].render(renderer, bottomStartX, bottomStartY + (graphHeight + graphPadding), graphWidth, graphHeight, font);
     graphs[7].render(renderer, bottomStartX, bottomStartY + 2 * (graphHeight + graphPadding), graphWidth, graphHeight, font);
@@ -413,30 +388,42 @@ void GUI::drawDials(SDL_Renderer* renderer, const Car& car) {
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
     int baseRadius = std::max(50, std::min(windowWidth, windowHeight) / 16);
-    int dialRadius = static_cast<int>(baseRadius * 1.55);
-    int spacing = dialRadius / 2;
+    int primaryDialRadius = static_cast<int>(baseRadius * 1.55);
+    int secondaryDialRadius = static_cast<int>(baseRadius * 1.0);
+    int spacing = primaryDialRadius / 2;
     int marginY = std::max(10, windowHeight / 100);
     int marginX = std::max(15, windowWidth / 150);
 
-    int totalWidth = dialRadius * 10 + spacing * 4;
-    int startX = windowWidth - marginX - dialRadius - (dialRadius * 2 + spacing) * 4;
-    int startY = marginY + dialRadius;
-
     const Engine& engine = car.getEngine();
 
+    int primaryStartX = windowWidth - marginX - primaryDialRadius - (primaryDialRadius * 2 + spacing);
+    int primaryStartY = marginY + primaryDialRadius;
+
     speedDial.setValue(car.velocity.norm() * 3.6);
-    speedDial.draw(renderer, startX, startY, dialRadius, dialFont);
+    speedDial.draw(renderer, primaryStartX, primaryStartY, primaryDialRadius, dialFont);
 
     rpmDial.setValue(engine.getRPM());
-    rpmDial.draw(renderer, startX + dialRadius * 2 + spacing, startY, dialRadius, dialFont);
+    rpmDial.draw(renderer, primaryStartX + primaryDialRadius * 2 + spacing, primaryStartY, primaryDialRadius, dialFont);
+
+    int secondaryStartX = windowWidth / 2 - (secondaryDialRadius * 6 + spacing * 2.5);
+    int secondaryStartY = windowHeight - marginY - secondaryDialRadius;
 
     torqueDial.setValue(engine.getEngineTorque());
-    torqueDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 2, startY, dialRadius, dialFont);
+    torqueDial.draw(renderer, secondaryStartX, secondaryStartY, secondaryDialRadius, dialFont);
 
     airFlowDial.setValue(engine.getAirFlowRateValue());
-    airFlowDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 3, startY, dialRadius, dialFont);
+    airFlowDial.draw(renderer, secondaryStartX + secondaryDialRadius * 2 + spacing, secondaryStartY, secondaryDialRadius, dialFont);
 
     double manifoldPressure = 101.325;
     manifoldPressureDial.setValue(manifoldPressure);
-    manifoldPressureDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 4, startY, dialRadius, dialFont);
+    manifoldPressureDial.draw(renderer, secondaryStartX + (secondaryDialRadius * 2 + spacing) * 2, secondaryStartY, secondaryDialRadius, dialFont);
+
+    volEffDial.setValue(engine.getVolumetricEfficiencyValue() * 100);
+    volEffDial.draw(renderer, secondaryStartX + (secondaryDialRadius * 2 + spacing) * 3, secondaryStartY, secondaryDialRadius, dialFont);
+
+    afrDial.setValue(engine.getAirFuelRatioValue());
+    afrDial.draw(renderer, secondaryStartX + (secondaryDialRadius * 2 + spacing) * 4, secondaryStartY, secondaryDialRadius, dialFont);
+
+    powerDial.setValue(engine.getCurrentPower() / 1000.0);
+    powerDial.draw(renderer, secondaryStartX + (secondaryDialRadius * 2 + spacing) * 5, secondaryStartY, secondaryDialRadius, dialFont);
 }
