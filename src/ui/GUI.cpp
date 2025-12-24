@@ -282,7 +282,12 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
     int speedPanelWidth = std::max(180, windowWidth / 7);
     int speedPanelHeight = lineHeight * 6;
     int speedPanelX = windowWidth - speedPanelWidth - marginX;
-    int speedPanelY = windowHeight - speedPanelHeight - marginY * 8;
+
+    int baseRadius = std::max(50, std::min(windowWidth, windowHeight) / 16);
+    int primaryDialRadius = static_cast<int>(baseRadius * 1.55);
+    int dialBottomY = marginY + primaryDialRadius * 2 + marginY;
+
+    int speedPanelY = dialBottomY + padding * 2;
 
     SDL_Rect speedPanel = {speedPanelX, speedPanelY, speedPanelWidth, speedPanelHeight};
     SDL_SetRenderDrawColor(renderer, 13, 13, 13, 220);
@@ -362,8 +367,12 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
     int dialRadius = static_cast<int>(baseRadius * 1.55);
     int dialBottomY = marginY + dialRadius * 2 + marginY;
 
+    int lineHeight = fontSize + std::max(2, windowHeight / 250);
+    int speedPanelHeight = lineHeight * 6;
+    int speedPanelBottomY = dialBottomY + graphPadding * 2 + speedPanelHeight;
+
     int rightStartX = windowWidth - graphWidth - marginX;
-    int rightStartY = dialBottomY + graphPadding * 2;
+    int rightStartY = speedPanelBottomY + graphPadding * 3;
 
     graphs[1].render(renderer, rightStartX, rightStartY, graphWidth, graphHeight, font);
     graphs[2].render(renderer, rightStartX, rightStartY + (graphHeight + graphPadding), graphWidth, graphHeight, font);
@@ -405,7 +414,7 @@ void GUI::drawDials(SDL_Renderer* renderer, const Car& car) {
     rpmDial.setValue(engine.getRPM());
     rpmDial.draw(renderer, primaryStartX + primaryDialRadius * 2 + spacing, primaryStartY, primaryDialRadius, dialFont);
 
-    int secondaryStartX = windowWidth / 2 - (secondaryDialRadius * 6 + spacing * 2.5);
+    int secondaryStartX = windowWidth / 2 - (secondaryDialRadius * 6 + spacing * 2.5) + windowWidth / 8;
     int secondaryStartY = windowHeight - marginY - secondaryDialRadius;
 
     torqueDial.setValue(engine.getEngineTorque());
