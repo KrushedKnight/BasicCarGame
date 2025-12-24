@@ -8,7 +8,8 @@ GUI::GUI() : font(nullptr), dialFont(nullptr), visible(true), showGraphs(true), 
              rpmDial(0.0, 8000.0, "RPM", ""),
              torqueDial(0.0, 400.0, "TORQUE", "Nm"),
              airFlowDial(0.0, 0.05, "AIR FLOW", "kg/s"),
-             manifoldPressureDial(0.0, 150.0, "MANIFOLD", "kPa") {
+             manifoldPressureDial(0.0, 150.0, "MANIFOLD", "kPa"),
+             speedDial(0.0, 300.0, "SPEED", "km/h") {
     graphs.emplace_back("Speed (m/s)", SDL_Color{0, 255, 0, 255}, 0.0, 50.0);
     graphs.emplace_back("Throttle/Brake", SDL_Color{255, 165, 0, 255}, -1.0, 1.0);
     graphs.emplace_back("Steering", SDL_Color{100, 200, 255, 255}, -1.0, 1.0);
@@ -304,7 +305,7 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
     int speedPanelWidth = std::max(180, windowWidth / 7);
     int speedPanelHeight = lineHeight * 6;
     int speedPanelX = windowWidth - speedPanelWidth - marginX;
-    int speedPanelY = windowHeight / 2 - speedPanelHeight / 2;
+    int speedPanelY = windowHeight - speedPanelHeight - marginY * 8;
 
     SDL_Rect speedPanel = {speedPanelX, speedPanelY, speedPanelWidth, speedPanelHeight};
     SDL_SetRenderDrawColor(renderer, 13, 13, 13, 220);
@@ -376,12 +377,12 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
 
     int graphWidth = std::max(200, windowWidth / 6);
     int graphHeight = std::max(50, windowHeight / 13);
-    int graphPadding = std::max(5, windowHeight / 100);
-    int marginX = std::max(10, windowWidth / 200);
-    int marginY = std::max(5, windowHeight / 200);
+    int graphPadding = std::max(10, windowHeight / 80);
+    int marginX = std::max(15, windowWidth / 150);
+    int marginY = std::max(10, windowHeight / 100);
 
     int leftStartX = marginX;
-    int leftStartY = windowHeight / 2 + windowHeight / 8;
+    int leftStartY = windowHeight / 3;
 
     graphs[3].render(renderer, leftStartX, leftStartY, graphWidth, graphHeight, font);
 
@@ -390,12 +391,11 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
     int dialBottomY = marginY + dialRadius * 2 + marginY;
 
     int rightStartX = windowWidth - graphWidth - marginX;
-    int rightStartY = marginY * 3;
+    int rightStartY = dialBottomY + graphPadding * 2;
 
-    graphs[0].render(renderer, rightStartX, rightStartY, graphWidth, graphHeight, font);
-    graphs[1].render(renderer, rightStartX, rightStartY + (graphHeight + graphPadding), graphWidth, graphHeight, font);
-    graphs[2].render(renderer, rightStartX, rightStartY + 2 * (graphHeight + graphPadding), graphWidth, graphHeight, font);
-    graphs[4].render(renderer, rightStartX, rightStartY + 3 * (graphHeight + graphPadding), graphWidth, graphHeight, font);
+    graphs[1].render(renderer, rightStartX, rightStartY, graphWidth, graphHeight, font);
+    graphs[2].render(renderer, rightStartX, rightStartY + (graphHeight + graphPadding), graphWidth, graphHeight, font);
+    graphs[4].render(renderer, rightStartX, rightStartY + 2 * (graphHeight + graphPadding), graphWidth, graphHeight, font);
 
     int bottomStartY = windowHeight - (graphHeight + graphPadding) * 4 - marginY;
     int bottomStartX = marginX;
@@ -414,25 +414,29 @@ void GUI::drawDials(SDL_Renderer* renderer, const Car& car) {
 
     int baseRadius = std::max(50, std::min(windowWidth, windowHeight) / 16);
     int dialRadius = static_cast<int>(baseRadius * 1.55);
-    int spacing = dialRadius / 3;
+    int spacing = dialRadius / 2;
     int marginY = std::max(10, windowHeight / 100);
+    int marginX = std::max(15, windowWidth / 150);
 
-    int totalWidth = dialRadius * 8 + spacing * 3;
-    int startX = (windowWidth - totalWidth) / 2 + dialRadius;
+    int totalWidth = dialRadius * 10 + spacing * 4;
+    int startX = windowWidth - marginX - dialRadius - (dialRadius * 2 + spacing) * 4;
     int startY = marginY + dialRadius;
 
     const Engine& engine = car.getEngine();
 
+    speedDial.setValue(car.velocity.norm() * 3.6);
+    speedDial.draw(renderer, startX, startY, dialRadius, dialFont);
+
     rpmDial.setValue(engine.getRPM());
-    rpmDial.draw(renderer, startX, startY, dialRadius, dialFont);
+    rpmDial.draw(renderer, startX + dialRadius * 2 + spacing, startY, dialRadius, dialFont);
 
     torqueDial.setValue(engine.getEngineTorque());
-    torqueDial.draw(renderer, startX + dialRadius * 2 + spacing, startY, dialRadius, dialFont);
+    torqueDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 2, startY, dialRadius, dialFont);
 
     airFlowDial.setValue(engine.getAirFlowRateValue());
-    airFlowDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 2, startY, dialRadius, dialFont);
+    airFlowDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 3, startY, dialRadius, dialFont);
 
     double manifoldPressure = 101.325;
     manifoldPressureDial.setValue(manifoldPressure);
-    manifoldPressureDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 3, startY, dialRadius, dialFont);
+    manifoldPressureDial.draw(renderer, startX + (dialRadius * 2 + spacing) * 4, startY, dialRadius, dialFont);
 }
