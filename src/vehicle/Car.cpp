@@ -131,7 +131,7 @@ void Car::applyForceFeedback()
 
 void Car::updateEngine(double throttle) {
     gearbox.update();
-    engine.calculateTorque(throttle);
+    engine.calculateTorque(actualThrottle);
 
     Wheel* rearWheels[] = {backLeft, backRight};
 
@@ -194,7 +194,7 @@ void Car::applyBrakes() {
         Eigen::Vector2d wheelForward{sin(wheel->wheelAngle), cos(wheel->wheelAngle)};
         double vehicleSpeed = std::abs(wheelVelocityLocal.dot(wheelForward));
 
-        double requestedBrakeTorque = braking_power * wheel->wheelRadius;
+        double requestedBrakeTorque = braking_power * actualBrake * wheel->wheelRadius;
         double adjustedBrakeTorque = abs.regulateBrakePressure(
             *wheel,
             requestedBrakeTorque,
@@ -205,6 +205,73 @@ void Car::applyBrakes() {
         );
 
         wheel->addTorque(adjustedBrakeTorque);
+    }
+}
+
+void Car::setThrottle(double throttle) {
+    targetThrottle = std::clamp(throttle, 0.0, 1.0);
+}
+
+void Car::setBrake(double brake) {
+    targetBrake = std::clamp(brake, 0.0, 1.0);
+}
+
+void Car::setSteering(double steering) {
+    targetSteering = std::clamp(steering, -1.0, 1.0);
+}
+
+void Car::updateInputs(double timeInterval) {
+    const double throttleRate = 3.0;
+    const double brakeRate = 5.0;
+    const double steeringRate = 4.0;
+
+    double throttleDiff = targetThrottle - actualThrottle;
+    double throttleChange = std::clamp(throttleDiff, -throttleRate * timeInterval, throttleRate * timeInterval);
+    actualThrottle += throttleChange;
+    actualThrottle = std::clamp(actualThrottle, 0.0, 1.0);
+
+    double brakeDiff = targetBrake - actualBrake;
+    double brakeChange = std::clamp(brakeDiff, -brakeRate * timeInterval, brakeRate * timeInterval);
+    actualBrake += brakeChange;
+    actualBrake = std::clamp(actualBrake, 0.0, 1.0);
+
+    double steeringDiff = targetSteering - actualSteering;
+    double steeringChange = std::clamp(steeringDiff, -steeringRate * timeInterval, steeringRate * timeInterval);
+    actualSteering += steeringChange;
+    actualSteering = std::clamp(actualSteering, -1.0, 1.0);
+
+    double targetSteeringAngle = actualSteering * PhysicsConstants::MAX_STEERING_ANGLE;
+    double speed = velocity.norm();
+    double maxSpeed = 50.0;
+    double speedFactor = 1.0 - (speed / maxSpeed) * 0.5;
+    speedFactor = std::max(0.5, speedFactor);
+    targetSteeringAngle *= speedFactor;
+
+    steering_angle = targetSteeringAngle;
+
+    double wheelbase = RenderingConstants::WHEELBASE;
+    double trackWidth = RenderingConstants::TRACK_WIDTH;
+    double steeringRack = PhysicsConstants::STEERING_RACK;
+    double baseAngle = steering_angle * steeringRack;
+
+    if (std::abs(baseAngle) < 0.001) {
+        frontLeft->wheelAngle = 0.0;
+        frontRight->wheelAngle = 0.0;
+    } else {
+        double turnRadius = wheelbase / tan(std::abs(baseAngle));
+        double innerRadius = turnRadius - trackWidth / 2.0;
+        double outerRadius = turnRadius + trackWidth / 2.0;
+
+        double innerAngle = atan(wheelbase / innerRadius);
+        double outerAngle = atan(wheelbase / outerRadius);
+
+        if (baseAngle > 0) {
+            frontLeft->wheelAngle = innerAngle;
+            frontRight->wheelAngle = outerAngle;
+        } else {
+            frontLeft->wheelAngle = -outerAngle;
+            frontRight->wheelAngle = -innerAngle;
+        }
     }
 }
 

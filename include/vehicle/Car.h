@@ -23,6 +23,13 @@ class Car : public RigidBody {
 
         bool showDebugVectors{true};
 
+        double targetThrottle{0.0};
+        double actualThrottle{0.0};
+        double targetBrake{0.0};
+        double actualBrake{0.0};
+        double targetSteering{0.0};
+        double actualSteering{0.0};
+
         Wheel* frontLeft;
         Wheel* frontRight;
         Wheel* backLeft;
@@ -43,6 +50,11 @@ class Car : public RigidBody {
         void updateEngine(double throttle);
         void applyBrakes();
         void applyForceFeedback();
+
+        void setThrottle(double throttle);
+        void setBrake(double brake);
+        void setSteering(double steering);
+        void updateInputs(double timeInterval);
 
         void shiftUp();
         void shiftDown();

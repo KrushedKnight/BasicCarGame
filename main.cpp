@@ -92,20 +92,21 @@ int main(int argc, char* argv[]) {
         double steering = 0.0;
 
         if (keystate[SDL_SCANCODE_W]) {
-            throttle = 0.6;
+            throttle = 1.0;
         }
         if (keystate[SDL_SCANCODE_S]) {
-            car.applyBrakes();
             brake = 1.0;
         }
         if (keystate[SDL_SCANCODE_A]) {
-            car.applySteering(STEERING_INCREMENT);
             steering = 1.0;
         }
         if (keystate[SDL_SCANCODE_D]) {
-            car.applySteering(-STEERING_INCREMENT);
             steering = -1.0;
         }
+
+        car.setThrottle(throttle);
+        car.setBrake(brake);
+        car.setSteering(steering);
 
         if (keystate[SDL_SCANCODE_LSHIFT]) {
             car.holdClutch();
@@ -113,15 +114,17 @@ int main(int argc, char* argv[]) {
             car.releaseClutch();
         }
 
+        car.updateInputs(PhysicsConstants::TIME_INTERVAL);
         car.updateEngine(throttle);
+        car.applyBrakes();
         car.sumWheelForces();
         car.updateAcceleration();
 
-        gui.updateGraphs(car, throttle, brake, steering);
+        gui.updateGraphs(car, car.actualThrottle, car.actualBrake, car.actualSteering);
 
         car.eraseCar(renderer);
         car.drawCar(renderer);
-        gui.drawHUD(renderer, car, throttle);
+        gui.drawHUD(renderer, car, car.actualThrottle);
         SDL_RenderPresent(renderer);
 
         car.incrementTime(PhysicsConstants::TIME_INTERVAL);

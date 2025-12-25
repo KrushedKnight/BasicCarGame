@@ -462,7 +462,7 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     };
 
     drawSlider("Throttle", currentThrottle, startY, {0, 255, 0, 255});
-    drawCenteredSlider("Steering", currentSteering, startY + sliderHeight + sliderPadding, {100, 200, 255, 255});
+    drawCenteredSlider("Steering", -currentSteering, startY + sliderHeight + sliderPadding, {100, 200, 255, 255});
     drawSlider("Brake", currentBrake, startY + (sliderHeight + sliderPadding) * 2, {255, 100, 100, 255});
     drawSlider("Clutch", currentClutch, startY + (sliderHeight + sliderPadding) * 3, {255, 200, 100, 255});
 }
