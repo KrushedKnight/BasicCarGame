@@ -4,6 +4,7 @@
 #include "vehicle/Car.h"
 #include "ui/GUI.h"
 #include "rendering/Camera.h"
+#include "rendering/Ground.h"
 #include <Eigen/Dense>
 
 #include "config/PhysicsConstants.h"
@@ -57,6 +58,7 @@ int main(int argc, char* argv[]) {
     Car car{RenderingConstants::CENTER_X, RenderingConstants::CENTER_Y, RenderingConstants::CAR_WIDTH, RenderingConstants::CAR_LENGTH};
 
     Camera camera(car.pos_x, car.pos_y, 0.1);
+    Ground ground(100);
 
     GUI gui;
     int fontSize = std::max(12, screenHeight / 60);
@@ -128,6 +130,7 @@ int main(int argc, char* argv[]) {
         camera.followTargetSmooth(car.pos_x, car.pos_y);
 
         car.eraseCar(renderer);
+        ground.draw(renderer, &camera, RenderingConstants::SDL_WINDOW_WIDTH, RenderingConstants::SDL_WINDOW_LENGTH);
         car.drawCar(renderer, &camera);
         gui.drawHUD(renderer, car, car.actualThrottle);
         SDL_RenderPresent(renderer);
