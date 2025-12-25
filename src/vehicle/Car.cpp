@@ -433,8 +433,21 @@ SDL_Texture* Car::getRectangleTexture(SDL_Renderer* renderer) {
                                        SDL_TEXTUREACCESS_TARGET, width, height);
         SDL_SetTextureBlendMode(carTexture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(renderer, carTexture);
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
+
+        int w = static_cast<int>(width);
+        int h = static_cast<int>(height);
+
+        SDL_SetRenderDrawColor(renderer, 58, 58, 58, 255);
+        SDL_Rect body = {0, 0, w, h};
+        SDL_RenderFillRect(renderer, &body);
+
+        SDL_SetRenderDrawColor(renderer, 65, 65, 65, 255);
+        SDL_Rect frontIndicator = {0, 0, w, h/10};
+        SDL_RenderFillRect(renderer, &frontIndicator);
+
         SDL_SetRenderTarget(renderer, NULL);
     }
     return carTexture;
