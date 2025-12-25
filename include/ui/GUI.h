@@ -40,6 +40,11 @@ private:
     bool showDials;
     int fontSize;
 
+    double currentThrottle;
+    double currentBrake;
+    double currentSteering;
+    double currentClutch;
+
     std::vector<Graph> graphs;
     Dial rpmDial;
     Dial torqueDial;
@@ -54,6 +59,7 @@ private:
 
     void drawGraphs(SDL_Renderer* renderer);
     void drawDials(SDL_Renderer* renderer, const Car& car);
+    void drawInputSliders(SDL_Renderer* renderer);
 };
 
 #endif
