@@ -413,11 +413,12 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     int startY = speedPanelBottomY + sliderPadding * 3;
 
     int labelWidth = 80;
+    int textSliderGap = 15;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     auto drawSlider = [&](const char* label, double value, int y, SDL_Color fillColor) {
-        drawText(renderer, label, startX - labelWidth, y + sliderHeight / 4, {208, 208, 208, 255});
+        drawText(renderer, label, startX - labelWidth - textSliderGap, y + sliderHeight / 4, {208, 208, 208, 255});
 
         SDL_Rect background = {startX, y, sliderWidth, sliderHeight};
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
@@ -435,7 +436,7 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     };
 
     auto drawCenteredSlider = [&](const char* label, double value, int y, SDL_Color fillColor) {
-        drawText(renderer, label, startX - labelWidth, y + sliderHeight / 4, {208, 208, 208, 255});
+        drawText(renderer, label, startX - labelWidth - textSliderGap, y + sliderHeight / 4, {208, 208, 208, 255});
 
         SDL_Rect background = {startX, y, sliderWidth, sliderHeight};
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
