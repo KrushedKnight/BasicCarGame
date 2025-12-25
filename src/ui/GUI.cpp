@@ -202,7 +202,7 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
 
     SDL_Rect speedPanel = {speedPanelX, speedPanelY, speedPanelWidth, speedPanelHeight};
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
+    SDL_SetRenderDrawColor(renderer, 28, 28, 28, 200);
     SDL_RenderFillRect(renderer, &speedPanel);
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderDrawRect(renderer, &speedPanel);
@@ -214,19 +214,19 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
     int speedTextX = speedPanelX + padding;
     int speedTextY = speedPanelY + padding;
 
-    drawText(renderer, "SPEED", speedTextX, speedTextY, {150, 150, 150, 255});
-    drawText(renderer, speedText + " km/h", speedTextX, speedTextY + lineHeight, {0, 255, 0, 255});
+    drawText(renderer, "SPEED", speedTextX, speedTextY, {208, 208, 208, 255});
+    drawText(renderer, speedText + " km/h", speedTextX, speedTextY + lineHeight, {79, 163, 99, 255});
 
     speedTextY += lineHeight * 3;
-    drawText(renderer, "GEAR", speedTextX, speedTextY, {150, 150, 150, 255});
+    drawText(renderer, "GEAR", speedTextX, speedTextY, {208, 208, 208, 255});
 
     if (currentGear == -2) {
-        drawText(renderer, "R", speedTextX, speedTextY + lineHeight, {255, 100, 100, 255});
+        drawText(renderer, "R", speedTextX, speedTextY + lineHeight, {194, 92, 92, 255});
     } else if (currentGear == -1) {
-        drawText(renderer, "N", speedTextX, speedTextY + lineHeight, {200, 200, 200, 255});
+        drawText(renderer, "N", speedTextX, speedTextY + lineHeight, {208, 208, 208, 255});
     } else {
         std::string gearNum = std::to_string(currentGear + 1);
-        drawText(renderer, gearNum, speedTextX, speedTextY + lineHeight, {0, 255, 0, 255});
+        drawText(renderer, gearNum, speedTextX, speedTextY + lineHeight, {79, 163, 99, 255});
     }
 
     drawGraphs(renderer);
@@ -301,7 +301,7 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
         graphWidth + graphPadding * 2,
         graphHeight + graphPadding * 2
     };
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
+    SDL_SetRenderDrawColor(renderer, 28, 28, 28, 200);
     SDL_RenderFillRect(renderer, &clutchSlipPanel);
 
     graphs[3].render(renderer, bottomStartX, clutchSlipY, graphWidth, graphHeight, font);
@@ -312,7 +312,7 @@ void GUI::drawGraphs(SDL_Renderer* renderer) {
         graphWidth + graphPadding * 2,
         graphHeight * 4 + graphPadding * 5
     };
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
+    SDL_SetRenderDrawColor(renderer, 28, 28, 28, 200);
     SDL_RenderFillRect(renderer, &gripGraphsPanel);
 
     graphs[5].render(renderer, bottomStartX, bottomStartY, graphWidth, graphHeight, font);
@@ -346,7 +346,7 @@ void GUI::drawDials(SDL_Renderer* renderer, const Car& car) {
         primaryDialRadius * 2 + marginY
     };
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
+    SDL_SetRenderDrawColor(renderer, 28, 28, 28, 200);
     SDL_RenderFillRect(renderer, &primaryDialsPanel);
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderDrawRect(renderer, &primaryDialsPanel);
@@ -367,7 +367,7 @@ void GUI::drawDials(SDL_Renderer* renderer, const Car& car) {
         (secondaryDialRadius * 2 + spacing) * 5 + secondaryDialRadius * 2 + graphPadding * 2,
         secondaryDialRadius * 2 + graphPadding * 2
     };
-    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 200);
+    SDL_SetRenderDrawColor(renderer, 28, 28, 28, 200);
     SDL_RenderFillRect(renderer, &secondaryDialsPanel);
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderDrawRect(renderer, &secondaryDialsPanel);
@@ -417,7 +417,7 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     auto drawSlider = [&](const char* label, double value, int y, SDL_Color fillColor) {
-        drawText(renderer, label, startX - labelWidth, y + sliderHeight / 4, {200, 200, 200, 255});
+        drawText(renderer, label, startX - labelWidth, y + sliderHeight / 4, {208, 208, 208, 255});
 
         SDL_Rect background = {startX, y, sliderWidth, sliderHeight};
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
@@ -435,7 +435,7 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     };
 
     auto drawCenteredSlider = [&](const char* label, double value, int y, SDL_Color fillColor) {
-        drawText(renderer, label, startX - labelWidth, y + sliderHeight / 4, {200, 200, 200, 255});
+        drawText(renderer, label, startX - labelWidth, y + sliderHeight / 4, {208, 208, 208, 255});
 
         SDL_Rect background = {startX, y, sliderWidth, sliderHeight};
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
@@ -461,8 +461,8 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
         SDL_RenderDrawLine(renderer, centerX, y, centerX, y + sliderHeight);
     };
 
-    drawSlider("Throttle", currentThrottle, startY, {0, 255, 0, 255});
-    drawCenteredSlider("Steering", -currentSteering, startY + sliderHeight + sliderPadding, {100, 200, 255, 255});
-    drawSlider("Brake", currentBrake, startY + (sliderHeight + sliderPadding) * 2, {255, 100, 100, 255});
-    drawSlider("Clutch", currentClutch, startY + (sliderHeight + sliderPadding) * 3, {255, 200, 100, 255});
+    drawSlider("Throttle", currentThrottle, startY, {79, 163, 99, 255});
+    drawCenteredSlider("Steering", -currentSteering, startY + sliderHeight + sliderPadding, {75, 151, 179, 255});
+    drawSlider("Brake", currentBrake, startY + (sliderHeight + sliderPadding) * 2, {194, 92, 92, 255});
+    drawSlider("Clutch", currentClutch, startY + (sliderHeight + sliderPadding) * 3, {58, 58, 58, 255});
 }
