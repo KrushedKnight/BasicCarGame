@@ -68,6 +68,11 @@ double Gearbox::getGearRatio() const
 
 bool Gearbox::shiftDown()
 {
+    if (!clutchPressed)
+    {
+        return false;
+    }
+
     if (selectedGear > -2)
     {
         selectedGear--;
@@ -78,6 +83,11 @@ bool Gearbox::shiftDown()
 
 bool Gearbox::shiftUp()
 {
+    if (!clutchPressed)
+    {
+        return false;
+    }
+
     if (selectedGear < static_cast<int>(this->gearRatios.size()) - 1)
     {
         selectedGear++;
