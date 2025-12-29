@@ -12,7 +12,7 @@ double TractionControl::regulateTorque(Wheel& wheel, double requestedTorque,
         interferencePercent = 0.0;
         wheel.tcsInterference = 0.0;
         wheel.previousSlipError = wheel.calculateSlipRatio(wheelVelocityLocal);
-        return 0.0;
+    return requestedTorque;
     }
 
     double slipRatio = wheel.calculateSlipRatio(wheelVelocityLocal);
