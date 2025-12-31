@@ -15,8 +15,8 @@ namespace EngineConstants
     const double CYLINDER_VOLUME = 0.005;
     const double MAX_RPM = 8000;
     const double LATENT_HEAT = 44000000;
-    const double ENGINE_EFFICIENCY = 0.52;
-    const double ENGINE_MOMENT_OF_INERTIA = 0.8;
+    const double ENGINE_EFFICIENCY = 0.64;
+    const double ENGINE_MOMENT_OF_INERTIA = 1.6;
     const double R_AIR = 287;
     const double AIR_TEMP = 298;
     const double ENGINE_FRICTION_COEFFICIENT = 0.02;

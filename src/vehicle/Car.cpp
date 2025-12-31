@@ -165,6 +165,7 @@ void Car::updateEngine(double throttle) {
     }
 
     baseTorque *= inertiaCorrection;
+    baseTorque *= 1.25;
 
     double reflectedWheelInertia = gearbox.getReflectedWheelInertia(PhysicsConstants::WHEEL_MOMENT_OF_INERTIA * 2.0);
     double effectiveEngineInertia = (EngineConstants::ENGINE_MOMENT_OF_INERTIA + reflectedWheelInertia) * 0.12;
