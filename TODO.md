@@ -1,7 +1,14 @@
 
 
-fix clutch/rpm oscillation - I think this is again that the engine and the wheelbase/transmission needs to be more strongly connected. 
-change car color/design
-add small gap between text and slider in the US
+fix the car power
+fix the handling
+fix dials/aesthetics
+add TCS and ABS dials back
+
+maybe add turbocharger
+
+
 
 Export to WASM
+
+(EOD SHIP OUT BEING SERIOUS)
