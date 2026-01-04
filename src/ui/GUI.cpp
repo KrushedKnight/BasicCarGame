@@ -79,7 +79,13 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
     }
 
     if (dialFont == nullptr) {
-        const char* fallbackFonts[] = {
+#ifdef __EMSCRIPTEN__
+        const char* dialFallbackFonts[] = {
+            "/assets/DejaVuSansMono.ttf",
+            nullptr
+        };
+#else
+        const char* dialFallbackFonts[] = {
             "/System/Library/Fonts/Menlo.ttc",
             "/System/Library/Fonts/Courier.dfont",
             "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
@@ -87,9 +93,10 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
             "C:\\Windows\\Fonts\\consola.ttf",
             nullptr
         };
+#endif
 
-        for (int i = 0; fallbackFonts[i] != nullptr && dialFont == nullptr; i++) {
-            dialFont = TTF_OpenFont(fallbackFonts[i], dialFontSize);
+        for (int i = 0; dialFallbackFonts[i] != nullptr && dialFont == nullptr; i++) {
+            dialFont = TTF_OpenFont(dialFallbackFonts[i], dialFontSize);
         }
     }
 
