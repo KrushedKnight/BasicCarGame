@@ -59,9 +59,9 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
     if (font == nullptr) {
 #ifdef __EMSCRIPTEN__
         const char* fallbackFonts[] = {
-            "/assets/DejaVuSansMono.ttf",
-            "assets/DejaVuSansMono.ttf",
-            "./assets/DejaVuSansMono.ttf",
+            "/assets/BerkMono.ttf",
+            "assets/BerkMono.ttf",
+            "./assets/BerkMono.ttf",
             nullptr
         };
 #else
@@ -93,9 +93,9 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
     if (dialFont == nullptr) {
 #ifdef __EMSCRIPTEN__
         const char* dialFallbackFonts[] = {
-            "/assets/DejaVuSansMono.ttf",
-            "assets/DejaVuSansMono.ttf",
-            "./assets/DejaVuSansMono.ttf",
+            "/assets/BerkMono.ttf",
+            "assets/BerkMono.ttf",
+            "./assets/BerkMono.ttf",
             nullptr
         };
 #else
