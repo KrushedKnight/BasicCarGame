@@ -85,7 +85,9 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
         return false;
     }
 
-    int dialFontSize = std::max(8, fontSize / 2);
+    TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+
+    int dialFontSize = std::max(10, fontSize / 2);
     if (fontPath != nullptr) {
         dialFont = TTF_OpenFont(fontPath, dialFontSize);
     }
@@ -112,6 +114,10 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
         for (int i = 0; dialFallbackFonts[i] != nullptr && dialFont == nullptr; i++) {
             dialFont = TTF_OpenFont(dialFallbackFonts[i], dialFontSize);
         }
+    }
+
+    if (dialFont != nullptr) {
+        TTF_SetFontHinting(dialFont, TTF_HINTING_LIGHT);
     }
 
     return true;

@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
     Ground* ground = new Ground(100);
 
     GUI* gui = new GUI();
-    int fontSize = std::max(12, screenHeight / 60);
+    int fontSize = std::max(14, screenHeight / 60);
     if (!gui->initialize(nullptr, fontSize)) {
         std::cerr << "Warning: Failed to initialize GUI" << std::endl;
     }
