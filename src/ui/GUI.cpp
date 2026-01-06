@@ -274,6 +274,13 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
         drawText(renderer, gearNum, speedTextX, speedTextY + lineHeight, {79, 163, 99, 255});
     }
 
+    double maxTcs, maxAbs;
+    calculateSystemInterference(car, maxTcs, maxAbs);
+
+    int indicatorY = speedPanel.y + speedPanel.h + padding;
+    int indicatorBarWidth = speedPanelWidth - 60;
+    drawAssistIndicators(renderer, speedPanelX, indicatorY, maxTcs, maxAbs, indicatorBarWidth);
+
     drawGraphs(renderer);
     drawDials(renderer, car);
     drawInputSliders(renderer);
@@ -454,8 +461,12 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     int speedPanelHeight = lineHeight * 6;
     int speedPanelBottomY = dialBottomY + sliderPadding * 2 + speedPanelHeight;
 
+    int barHeight = std::max(8, windowHeight / 180);
+    int barPadding = std::max(8, windowHeight / 135);
+    int indicatorHeight = barHeight * 2 + barPadding * 3;
+
     int startX = windowWidth - sliderWidth - marginX * 2;
-    int startY = speedPanelBottomY + sliderPadding * 3;
+    int startY = speedPanelBottomY + indicatorHeight + sliderPadding * 2;
 
     int labelWidth = 80;
     int textSliderGap = 15;
@@ -511,4 +522,63 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     drawCenteredSlider("Steering", -currentSteering, startY + sliderHeight + sliderPadding, {75, 151, 179, 255});
     drawSlider("Brake", currentBrake, startY + (sliderHeight + sliderPadding) * 2, {194, 92, 92, 255});
     drawSlider("Clutch", currentClutch, startY + (sliderHeight + sliderPadding) * 3, {58, 58, 58, 255});
+}
+
+void GUI::calculateSystemInterference(const Car& car, double& maxTcs, double& maxAbs) {
+    maxTcs = std::max(car.backLeft->tcsInterference,
+                      car.backRight->tcsInterference);
+    maxAbs = std::max({car.frontLeft->absInterference,
+                       car.frontRight->absInterference,
+                       car.backLeft->absInterference,
+                       car.backRight->absInterference});
+}
+
+void GUI::drawAssistIndicators(SDL_Renderer* renderer, int x, int y,
+                                double maxTcs, double maxAbs, int barWidth) {
+    if (font == nullptr) return;
+
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+
+    int barHeight = std::max(8, windowHeight / 180);
+    int padding = std::max(8, windowHeight / 135);
+    int labelWidth = 50;
+
+    auto drawBar = [&](const char* label, double value, double scale, int yPos) {
+        drawText(renderer, label, x, yPos, {200, 200, 200, 255});
+
+        SDL_Rect barBg = {x + labelWidth, yPos, barWidth, barHeight};
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_RenderFillRect(renderer, &barBg);
+
+        if (value > 0) {
+            int fillWidth = (int)(barWidth * std::min(value / scale, 1.0));
+            SDL_Rect barFill = {x + labelWidth, yPos, fillWidth, barHeight};
+
+            SDL_Color color;
+            if (strcmp(label, "TCS:") == 0) {
+                if (value > 80) {
+                    color = {200, 50, 50, 255};
+                } else if (value > 40) {
+                    color = {200, 200, 50, 255};
+                } else {
+                    color = {50, 200, 50, 255};
+                }
+            } else {
+                if (value > 20) {
+                    color = {200, 50, 50, 255};
+                } else if (value > 10) {
+                    color = {200, 200, 50, 255};
+                } else {
+                    color = {50, 200, 50, 255};
+                }
+            }
+
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+            SDL_RenderFillRect(renderer, &barFill);
+        }
+    };
+
+    drawBar("TCS:", maxTcs, 120.0, y);
+    drawBar("ABS:", maxAbs, 30.0, y + barHeight + padding);
 }

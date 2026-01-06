@@ -69,6 +69,10 @@ private:
     void drawGraphs(SDL_Renderer* renderer);
     void drawDials(SDL_Renderer* renderer, const Car& car);
     void drawInputSliders(SDL_Renderer* renderer);
+
+    void calculateSystemInterference(const Car& car, double& maxTcs, double& maxAbs);
+    void drawAssistIndicators(SDL_Renderer* renderer, int x, int y,
+                              double maxTcs, double maxAbs, int barWidth);
 };
 
 #endif
