@@ -142,8 +142,10 @@ void Car::updateEngine(double throttle) {
 
     double avgWheelOmega = (backLeft->angular_velocity + backRight->angular_velocity) / 2.0;
 
+#ifndef __EMSCRIPTEN__
     std::cout << "RPM: " << engine.getRPM() << " | WheelOmega: " << avgWheelOmega
             << " | ClutchTorque: " << gearbox.getClutchTorque() << std::endl;
+#endif
 
 
 
@@ -155,6 +157,7 @@ void Car::updateEngine(double throttle) {
     double effectiveInertia = wheelInertia + reflectedInertia;
     double inertiaCorrection = wheelInertia / effectiveInertia;
 
+#ifndef __EMSCRIPTEN__
     static int inertiaDebugCounter = 0;
     if (inertiaDebugCounter++ % 30 == 0 && gearbox.getCurrentGear() >= 0) {
         std::cout << "\n=== REFLECTED INERTIA ===" << std::endl;
@@ -163,6 +166,7 @@ void Car::updateEngine(double throttle) {
         std::cout << "Torque Before: " << (baseTorque / inertiaCorrection) << " Nm | After: " << (baseTorque / inertiaCorrection * inertiaCorrection) << " Nm" << std::endl;
         std::cout << "========================" << std::endl;
     }
+#endif
 
     baseTorque *= inertiaCorrection;
     baseTorque *= 1.25;
@@ -336,6 +340,7 @@ void Car::sumWheelForces() {
 
     addTorque(totalTorque);
 
+#ifndef __EMSCRIPTEN__
     static int debugCounter = 0;
     if (std::abs(angular_velocity) > 0.1 && debugCounter++ % 15 == 0) {
         double cos_a = cos(angular_position);
@@ -352,6 +357,7 @@ void Car::sumWheelForces() {
         std::cout << "Net Torque: " << totalTorque << "\n";
         std::cout << "AngVel: " << angular_velocity << " | Speed: " << velocity.norm() << " m/s\n";
     }
+#endif
 }
 
 void Car::moveWheels() {

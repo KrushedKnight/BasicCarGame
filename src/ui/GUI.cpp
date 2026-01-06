@@ -26,12 +26,22 @@ GUI::GUI() : font(nullptr), dialFont(nullptr), visible(true), showGraphs(true), 
 }
 
 GUI::~GUI() {
+    clearTextCache();
     if (font != nullptr) {
         TTF_CloseFont(font);
     }
     if (dialFont != nullptr) {
         TTF_CloseFont(dialFont);
     }
+}
+
+void GUI::clearTextCache() {
+    for (auto& entry : textCache) {
+        if (entry.second.texture != nullptr) {
+            SDL_DestroyTexture(entry.second.texture);
+        }
+    }
+    textCache.clear();
 }
 
 bool GUI::initialize(const char* fontPath, int fontSize) {
@@ -47,6 +57,14 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
     }
 
     if (font == nullptr) {
+#ifdef __EMSCRIPTEN__
+        const char* fallbackFonts[] = {
+            "/assets/BerkMono.ttf",
+            "assets/BerkMono.ttf",
+            "./assets/BerkMono.ttf",
+            nullptr
+        };
+#else
         const char* fallbackFonts[] = {
             "/System/Library/Fonts/Menlo.ttc",
             "/System/Library/Fonts/Courier.dfont",
@@ -55,6 +73,7 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
             "C:\\Windows\\Fonts\\consola.ttf",
             nullptr
         };
+#endif
 
         for (int i = 0; fallbackFonts[i] != nullptr && font == nullptr; i++) {
             font = TTF_OpenFont(fallbackFonts[i], fontSize);
@@ -66,13 +85,23 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
         return false;
     }
 
-    int dialFontSize = std::max(8, fontSize / 2);
+    TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+
+    int dialFontSize = std::max(10, fontSize / 2);
     if (fontPath != nullptr) {
         dialFont = TTF_OpenFont(fontPath, dialFontSize);
     }
 
     if (dialFont == nullptr) {
-        const char* fallbackFonts[] = {
+#ifdef __EMSCRIPTEN__
+        const char* dialFallbackFonts[] = {
+            "/assets/BerkMono.ttf",
+            "assets/BerkMono.ttf",
+            "./assets/BerkMono.ttf",
+            nullptr
+        };
+#else
+        const char* dialFallbackFonts[] = {
             "/System/Library/Fonts/Menlo.ttc",
             "/System/Library/Fonts/Courier.dfont",
             "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
@@ -80,10 +109,15 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
             "C:\\Windows\\Fonts\\consola.ttf",
             nullptr
         };
+#endif
 
-        for (int i = 0; fallbackFonts[i] != nullptr && dialFont == nullptr; i++) {
-            dialFont = TTF_OpenFont(fallbackFonts[i], dialFontSize);
+        for (int i = 0; dialFallbackFonts[i] != nullptr && dialFont == nullptr; i++) {
+            dialFont = TTF_OpenFont(dialFallbackFonts[i], dialFontSize);
         }
+    }
+
+    if (dialFont != nullptr) {
+        TTF_SetFontHinting(dialFont, TTF_HINTING_LIGHT);
     }
 
     return true;
@@ -91,6 +125,15 @@ bool GUI::initialize(const char* fontPath, int fontSize) {
 
 void GUI::drawText(SDL_Renderer* renderer, const std::string& text, int x, int y, SDL_Color color) {
     if (font == nullptr || text.empty()) return;
+
+    std::string cacheKey = text + "_" + std::to_string(color.r) + "_" + std::to_string(color.g) + "_" + std::to_string(color.b);
+
+    auto it = textCache.find(cacheKey);
+    if (it != textCache.end()) {
+        SDL_Rect dstrect = {x, y, it->second.width, it->second.height};
+        SDL_RenderCopy(renderer, it->second.texture, nullptr, &dstrect);
+        return;
+    }
 
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
     if (surface == nullptr) {
@@ -103,10 +146,12 @@ void GUI::drawText(SDL_Renderer* renderer, const std::string& text, int x, int y
         return;
     }
 
+    TextCacheEntry entry = {texture, surface->w, surface->h};
+    textCache[cacheKey] = entry;
+
     SDL_Rect dstrect = {x, y, surface->w, surface->h};
     SDL_RenderCopy(renderer, texture, nullptr, &dstrect);
 
-    SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
 
@@ -228,6 +273,13 @@ void GUI::drawHUD(SDL_Renderer* renderer, const Car& car, double throttle) {
         std::string gearNum = std::to_string(currentGear + 1);
         drawText(renderer, gearNum, speedTextX, speedTextY + lineHeight, {79, 163, 99, 255});
     }
+
+    double maxTcs, maxAbs;
+    calculateSystemInterference(car, maxTcs, maxAbs);
+
+    int indicatorY = speedPanel.y + speedPanel.h + padding;
+    int indicatorBarWidth = speedPanelWidth - 50;
+    drawAssistIndicators(renderer, speedPanelX, indicatorY, maxTcs, maxAbs, indicatorBarWidth);
 
     drawGraphs(renderer);
     drawDials(renderer, car);
@@ -409,8 +461,12 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     int speedPanelHeight = lineHeight * 6;
     int speedPanelBottomY = dialBottomY + sliderPadding * 2 + speedPanelHeight;
 
+    int barHeight = std::max(8, windowHeight / 180);
+    int barPadding = std::max(8, windowHeight / 135);
+    int indicatorHeight = barHeight * 2 + barPadding * 3;
+
     int startX = windowWidth - sliderWidth - marginX * 2;
-    int startY = speedPanelBottomY + sliderPadding * 3;
+    int startY = speedPanelBottomY + indicatorHeight + sliderPadding * 2;
 
     int labelWidth = 80;
     int textSliderGap = 15;
@@ -466,4 +522,66 @@ void GUI::drawInputSliders(SDL_Renderer* renderer) {
     drawCenteredSlider("Steering", -currentSteering, startY + sliderHeight + sliderPadding, {75, 151, 179, 255});
     drawSlider("Brake", currentBrake, startY + (sliderHeight + sliderPadding) * 2, {194, 92, 92, 255});
     drawSlider("Clutch", currentClutch, startY + (sliderHeight + sliderPadding) * 3, {58, 58, 58, 255});
+}
+
+void GUI::calculateSystemInterference(const Car& car, double& maxTcs, double& maxAbs) {
+    maxTcs = std::max(car.backLeft->tcsInterference,
+                      car.backRight->tcsInterference);
+    maxAbs = std::max({car.frontLeft->absInterference,
+                       car.frontRight->absInterference,
+                       car.backLeft->absInterference,
+                       car.backRight->absInterference});
+}
+
+void GUI::drawAssistIndicators(SDL_Renderer* renderer, int x, int y,
+                                double maxTcs, double maxAbs, int barWidth) {
+    if (font == nullptr) return;
+
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+
+    int barHeight = std::max(8, windowHeight / 180);
+    int padding = std::max(8, windowHeight / 135);
+    int labelWidth = 50;
+
+    int barYOffset = (fontSize / 2) - (barHeight / 2);
+
+    auto drawBar = [&](const char* label, double value, double scale, int yPos) {
+        drawText(renderer, label, x, yPos, {200, 200, 200, 255});
+
+        int barY = yPos + barYOffset;
+        SDL_Rect barBg = {x + labelWidth, barY, barWidth, barHeight};
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+        SDL_RenderFillRect(renderer, &barBg);
+
+        if (value > 0) {
+            int fillWidth = (int)(barWidth * std::min(value / scale, 1.0));
+            SDL_Rect barFill = {x + labelWidth, barY, fillWidth, barHeight};
+
+            SDL_Color color;
+            if (strcmp(label, "TCS:") == 0) {
+                if (value > 80) {
+                    color = {200, 50, 50, 255};
+                } else if (value > 40) {
+                    color = {200, 200, 50, 255};
+                } else {
+                    color = {50, 200, 50, 255};
+                }
+            } else {
+                if (value > 20) {
+                    color = {200, 50, 50, 255};
+                } else if (value > 10) {
+                    color = {200, 200, 50, 255};
+                } else {
+                    color = {50, 200, 50, 255};
+                }
+            }
+
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+            SDL_RenderFillRect(renderer, &barFill);
+        }
+    };
+
+    drawBar("TCS:", maxTcs, 120.0, y);
+    drawBar("ABS:", maxAbs, 30.0, y + barHeight + padding);
 }

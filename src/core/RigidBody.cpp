@@ -78,12 +78,14 @@ void RigidBody::incrementTime(double time_interval) {
         angular_position = std::remainder(angular_position, 2.0 * M_PI);
     }
 
+#ifndef __EMSCRIPTEN__
     static int frame_count = 0;
     if (frame_count++ % 30 == 0) {
         std::cout << "Angle: " << angular_position * PhysicsConstants::RAD_TO_DEG
                   << "° | AngVel: " << angular_velocity
                   << " | Torque: " << angular_torque << std::endl;
     }
+#endif
 
     clearForces();
     clearTorques();

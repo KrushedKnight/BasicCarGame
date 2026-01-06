@@ -110,11 +110,13 @@ double Gearbox::calculateBite()
 }
 double Gearbox::convertEngineTorqueToWheel(double engineTorque, Engine* engine, double wheelOmega)
 {
+#ifndef __EMSCRIPTEN__
     static int callCounter = 0;
     if (callCounter++ % 60 == 0) {
         std::cout << ">>> convertEngineTorqueToWheel CALLED | Gear: " << selectedGear
                   << " | ClutchPressed: " << clutchPressed << std::endl;
     }
+#endif
 
     if (selectedGear == -1 || clutchPressed)
     {
@@ -137,7 +139,8 @@ double Gearbox::convertEngineTorqueToWheel(double engineTorque, Engine* engine, 
     double transOmega = wheelOmega * wheelToEngineRatio();
     double slip = engineOmega - transOmega;
 
-static int debugCounter = 0;
+#ifndef __EMSCRIPTEN__
+    static int debugCounter = 0;
     if (debugCounter++ % 10 == 0) {
         std::cout << "\n=== CLUTCH DEBUG ===" << std::endl;
         std::cout << "EngineRPM: " << engine->getRPM() << " | EngineOmega: " << engineOmega << " rad/s" << std::endl;
@@ -146,6 +149,7 @@ static int debugCounter = 0;
         std::cout << "Bite: " << bite << " | GearRatio: " << (1.0 / engineToWheelRatio()) << ":1" << std::endl;
         std::cout << "wheelToEngineRatio: " << wheelToEngineRatio() << std::endl;
     }
+#endif
 
     this->heldTorque = engineTorque;
     double targetTorque;
@@ -184,6 +188,7 @@ static int debugCounter = 0;
     double ratio = engineToWheelRatio();
     double wheelTorque = (std::abs(ratio) > 1e-6) ? (torqueClutch / ratio) : 0.0;
 
+#ifndef __EMSCRIPTEN__
     if (debugCounter % 10 == 1) {
         std::cout << "EngineInputTorque: " << engineTorque << " Nm" << std::endl;
         std::cout << "ClutchTorque: " << torqueClutch << " Nm | WheelTorque: " << wheelTorque << " Nm" << std::endl;
@@ -194,6 +199,7 @@ static int debugCounter = 0;
         std::cout << std::endl;
         std::cout << "===================" << std::endl;
     }
+#endif
 
     return wheelTorque;
 }
