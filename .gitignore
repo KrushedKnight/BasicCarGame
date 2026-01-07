@@ -17,3 +17,5 @@ eigen-3.4.0/
 
 # Documentation
 CLAUDE.md
+/build_web/
+/build/
