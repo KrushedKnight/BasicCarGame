@@ -65,22 +65,40 @@ Instead of writing a custom `Vector2` class, I utilized the **Eigen** library.
 ### Component-Based Design
 The car is not a single monolithic object but a composition of parts (`Car` has `Wheels`). This allows for modular testing of individual components. For example, a `Wheel` can be tested in isolation to verify friction calculations before being attached to a `Car`.
 
-### Code Snippet: Friction Calculation
-One of the most challenging parts was calculating the correct friction vector for a drifting wheel:
-```cpp
-// Wheel.cpp
-Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity) {
-    // Calculate velocity relative to tire patch
-    Eigen::Vector2d patchVel = carVelocity + ...; 
-    
-    // Decompose into lateral and forward components
-    Eigen::Vector2d lateralDir = ...;
-    double lateralVel = patchVel.dot(lateralDir);
+## Testing: Deterministic Validation
+A core design goal of this project is **determinism**. The physics engine is structured so that identical initial conditions and identical input sequences always produce identical results across runs, independent of rendering frame rate or machine performance.
 
-    // Apply friction coefficient opposing motion
-    return -lateralDir * lateralVel * frictionCoefficient;
-}
-```
+This deterministic behavior enables rigorous testing and precise debugging—both of which are critical for physics-heavy systems.
+
+### Why Determinism Matters
+Deterministic simulation allows:
+- Step-by-step validation of physics behavior
+- Reliable regression testing when modifying friction or integration logic
+- Exact reproduction of bugs and instability scenarios
+- Comparison of intermediate values (forces, velocities, torques) across runs
+
+This design mirrors approaches used in robotics simulators and game engines where reproducibility is essential for validation.
+
+### Testing Approach
+The testing framework is built around **Google Test** and focuses on validating physics correctness under controlled conditions.
+
+Key principles:
+- **Fixed timestep integration** ensures time consistency
+- **No frame-dependent physics updates** (rendering is fully decoupled)
+- **Repeatable input sequences** drive deterministic outcomes
+- Physics state is advanced in isolation from rendering or user input
+
+Tests target both individual components and system-level behavior, including:
+- Force accumulation correctness
+- Friction direction and magnitude under slip
+- Velocity and angular velocity integration
+- Steering response under controlled inputs
+
+This approach made it possible to isolate subtle issues such as:
+- Energy gain/loss due to integration error
+- Incorrect lateral friction direction at high slip angles
+- Steering instability at low speeds
+
 
 ## Tech Stack
 *   **Language**: C++17
@@ -111,6 +129,18 @@ Eigen::Vector2d Wheel::calculateFriction(Eigen::Vector2d carVelocity) {
     ```bash
     ./SimpleTrafficGame
     ```
+### Running the Tests
+This project uses **Google Test** for unit and integration testing.
+
+#### Build and Run Tests
+From the project root:
+
+```bash
+mkdir build && cd build
+cmake ..
+make
+ctest
+```
 
 ## Future Improvements
 *   **Collision Detection**: Implementing SAT (Separating Axis Theorem) for car-to-obstacle collisions.
