@@ -11,7 +11,7 @@ A 2D rigid-body vehicle physics simulation built from scratch in C++. This proje
 *(Placeholder for gameplay GIF)*
 
 ## Table of Contents
-- [Problem Solved](#problem-solved)
+- [Project Motivation](#project-motivation)
 - [Key Features](#key-features)
 - [Architecture](#architecture)
 - [Engineering Decisions](#engineering-decisions)
@@ -19,11 +19,15 @@ A 2D rigid-body vehicle physics simulation built from scratch in C++. This proje
 - [Getting Started](#getting-started)
 - [Future Improvements](#future-improvements)
 
-## Problem Solved
-Most game developers rely on pre-built engines (Unity, Unreal) or physics libraries (Box2D, PhysX) which abstract away the underlying mathematics of motion. This project solves the problem of **"black box" physics dependency** by implementing the core equations of motion from first principles. It demonstrates a deep understanding of:
-- **Newtonian Mechanics**: Integration of forces and torques to derive velocity and position.
-- **Vehicle Dynamics**: Modeling wheel friction and steering geometry manually.
-- **Vector Mathematics**: Applied linear algebra for 2D space simulation.
+## Project Motivation
+This project was built as an exploration of vehicle dynamics and real-time physics simulation, rather than to solve a specific end-user problem.
+
+The primary goals were to:
+- Understand rigid body dynamics beyond black-box physics engines
+- Implement vehicle motion from first principles
+- Experiment with stability, friction, and steering behavior in a controlled environment
+
+By avoiding full-featured engines like Unity or physics libraries like Box2D, the project focuses on **how** car physics actually work—from force accumulation to numerical integration.
 
 ## Key Features
 - **Custom Rigid Body Physics Engine**: A lightweight physics core covering linear/angular velocity, acceleration, mass, and moment of inertia.
